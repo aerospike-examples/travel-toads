@@ -11,32 +11,37 @@ const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD"] as const;
  * Support/Chat with Agent/Sign in have no destination yet - inert buttons, not dead links.
  */
 export function HeaderUtilityBar() {
-  const [currency, setCurrency] = useState<(typeof CURRENCIES)[number]>("USD");
+	const [currency, setCurrency] = useState<(typeof CURRENCIES)[number]>("USD");
 
-  return (
-    <div className="header-utility-bar">
-      <div className="container header-utility-bar-inner">
-        <label className="utility-currency">
-          <span className="sr-only">Currency</span>
-          <select value={currency} onChange={(e) => setCurrency(e.target.value as (typeof CURRENCIES)[number])}>
-            {CURRENCIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </label>
+	return (
+		<div className="header-utility-bar">
+			<div className="container header-utility-bar-inner">
+				<label className="utility-currency">
+					<span className="sr-only">Currency</span>
+					<select
+						value={currency}
+						onChange={(e) =>
+							setCurrency(e.target.value as (typeof CURRENCIES)[number])
+						}
+					>
+						{CURRENCIES.map((c) => (
+							<option key={c} value={c}>
+								{c}
+							</option>
+						))}
+					</select>
+				</label>
 
-        <button type="button" className="utility-link">
-          Support
-        </button>
-        <button type="button" className="utility-link">
-          💬 Chat with Agent
-        </button>
-        <button type="button" className="utility-link utility-signin">
-          Sign in
-        </button>
-      </div>
-    </div>
-  );
+				<button type="button" className="utility-link">
+					Support
+				</button>
+				<button type="button" className="utility-link">
+					💬 Chat with Agent
+				</button>
+				<button type="button" className="utility-link utility-signin">
+					Sign in
+				</button>
+			</div>
+		</div>
+	);
 }

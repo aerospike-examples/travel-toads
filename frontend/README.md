@@ -159,7 +159,7 @@ internal `YYYYMMDD` integers** that `docs/design.md` uses for the stored
 `rates[].from/to/available` day values. The brief's endpoint signatures don't
 state a wire type for these; I used ISO strings as the more conventional REST
 choice for a request parameter (query string and JSON body), while still
-treating the `from`/`to`/`available` values *returned inside* `rooms` as the
+treating the `from`/`to`/`available` values _returned inside_ `rooms` as the
 day-integer format design.md specifies (see `isoToYmdInt`/`formatYmdInt` in
 `src/lib/format.ts`). If the backend instead expects `checkIn`/`checkOut` as
 integers too, swap the two call sites in `src/pages/SearchResultsPage.tsx` and
@@ -175,7 +175,7 @@ here just mean a filter chip that never matches anything — swap the lists in
 
 **`POST /bookings` has no `demo` field in its documented request body**
 (unlike `/search`, `/suggest`, `/hotels/{id}`, which all take an explicit
-`demo: boolean`). So the frontend has no way to *ask* for a demo block on a
+`demo: boolean`). So the frontend has no way to _ask_ for a demo block on a
 booking — `BookingRequest` in `src/api/types.ts` matches the documented shape
 exactly (no `demo` field sent). The confirmation page's demo panel just
 renders whatever `demo` value the response happens to contain, gated on the

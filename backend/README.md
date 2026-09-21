@@ -42,14 +42,14 @@ with no custom config, its default namespace is `test` — set `AEROSPIKE_NAMESP
 
 Environment variables (all optional, defaults shown):
 
-| Variable | Default | Notes |
-|---|---|---|
-| `AEROSPIKE_HOST` | `aerospike` | compose service name; use `localhost` standalone |
-| `AEROSPIKE_PORT` | `3000` | |
-| `AEROSPIKE_NAMESPACE` | `demo` | see above |
-| `DATA_DIR` | `/data` | must contain `hotels.ndjson` and `landmarks.json` |
-| `SCENARIOS_DIR` | auto-detected (`/app/scenarios`, then `../scenarios`, then `scenarios`) | see "Deviations" below |
-| `SERVER_PORT` | `8081` | |
+| Variable              | Default                                                                 | Notes                                             |
+| --------------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
+| `AEROSPIKE_HOST`      | `aerospike`                                                             | compose service name; use `localhost` standalone  |
+| `AEROSPIKE_PORT`      | `3000`                                                                  |                                                   |
+| `AEROSPIKE_NAMESPACE` | `demo`                                                                  | see above                                         |
+| `DATA_DIR`            | `/data`                                                                 | must contain `hotels.ndjson` and `landmarks.json` |
+| `SCENARIOS_DIR`       | auto-detected (`/app/scenarios`, then `../scenarios`, then `scenarios`) | see "Deviations" below                            |
+| `SERVER_PORT`         | `8081`                                                                  |                                                   |
 
 ### Docker
 
@@ -80,7 +80,7 @@ Aerospike server, not by unit tests.
 /app/scenarios:ro`), plus one new env var (`SCENARIOS_DIR`).** The brief requires reusing
 `scenarios/*.json` verbatim at runtime rather than hardcoding that copy into Java. Those files live
 at the repo root, but `docker-compose.yml`'s `build: ./backend` line scopes the backend's Docker
-*build context* to `backend/` only, so the Dockerfile has no way to `COPY` a repo-root directory at
+_build context_ to `backend/` only, so the Dockerfile has no way to `COPY` a repo-root directory at
 image-build time. Restructuring the build context (`context: .` + `dockerfile: backend/Dockerfile`)
 would have been a bigger, riskier change to a file owned by someone else's concurrent work; a
 single read-only bind mount is the smallest correction that makes the documented behavior
@@ -92,12 +92,12 @@ just comes back `null`.
 **2. Booking is two sequential atomic single-record operations, not one combined `operate()`.**
 `scenarios/booking.json`'s illustrative code shows one `.execute()` call doing both the
 remove-from-`available` and the append-to-`booked`. But a single `operate()` runs every operation
-in the call regardless of what an earlier operation in the *same* call returned — there's no
+in the call regardless of what an earlier operation in the _same_ call returned — there's no
 in-call conditional. Combining them the way the illustration shows would mean either always
 appending (which defeats design.md's own point about asserting the removed count first) or
 appending unconditionally and compensating afterwards. Instead, `BookingService` does: (a) an
 atomic remove-by-value-list from `available`, returning the values actually removed; (b) if that
-count doesn't match the requested nights, it puts back whatever *was* removed (a corrective
+count doesn't match the requested nights, it puts back whatever _was_ removed (a corrective
 `listAppendItems`) and returns `409 ROOM_NOT_AVAILABLE` without ever touching `booked`; (c) only on
 a full match does it append the reservation to `booked`, in a second atomic call. Each step is
 still a genuine atomic single-record CDT operation; what's given up is a single round trip, and
@@ -146,7 +146,7 @@ away every time.
 
 **6. `GET /hotels/{id}`'s room/rate projection is done in Java after a plain key read, not as a
 server-side AEL path-expression projection.** Every other AEL-dependent endpoint in this backend
-has a documented `503 AEL_UNSUPPORTED` fallback — but the API contract does *not* list a 503 case
+has a documented `503 AEL_UNSUPPORTED` fallback — but the API contract does _not_ list a 503 case
 for this endpoint, only 404. Since AEL genuinely does not work at all against the 8.1.2.4 server
 this demo ships with today, the only way to make this endpoint actually function (not just exist)
 is to do the "only matching rooms/rate segments cross the wire" filtering in the application layer
@@ -212,22 +212,22 @@ fine for 900 records.
 **What works, per predicate (`ClassicFilters.java`), each confirmed with a real, non-degenerate
 count:**
 
-| Predicate | Classic-Exp construction | Verified count | Cross-check |
-|---|---|---|---|
-| Geo (landmark + radius) | `Exp.geoCompare(Exp.geoBin(...), Exp.geo(circleJson))` | 97 (airport, 10mi, rating≥70) | plausible subset |
-| Locality | `Exp.eq(Exp.stringBin("locality"), ...)` | 112 (austin-downtown) | exact match |
-| City (whole-city destination) | `Exp.eq(Exp.stringBin("city"), ...)` — unindexed, same tier as propertyType/bed/amenities, not an index-selecting predicate like geo/locality | 630 (Austin), 135 (Round Rock), 135 (San Marcos) | exact match all three |
-| Rating | `Exp.ge(Exp.intBin("rating"), ...)` | 64 (≥80) | plausible |
-| Property type | `Exp.eq(Exp.stringBin("propertyType"), ...)` | 39 (resort), 407 (hotel) | exact match both |
-| Amenities | `ListExp.getByValue(COUNT, ..., Exp.listBin("amenities"))` — plain top-level list, no nesting | 344 (pool) | plausible |
-| Bed type | `CdtExp.selectByPath` (scalar leaf) → `ListExp.getByValue` | 864/900 (king) | plausible (5 non-dorm bed types) |
+| Predicate                     | Classic-Exp construction                                                                                                                      | Verified count                                   | Cross-check                      |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------- |
+| Geo (landmark + radius)       | `Exp.geoCompare(Exp.geoBin(...), Exp.geo(circleJson))`                                                                                        | 97 (airport, 10mi, rating≥70)                    | plausible subset                 |
+| Locality                      | `Exp.eq(Exp.stringBin("locality"), ...)`                                                                                                      | 112 (austin-downtown)                            | exact match                      |
+| City (whole-city destination) | `Exp.eq(Exp.stringBin("city"), ...)` — unindexed, same tier as propertyType/bed/amenities, not an index-selecting predicate like geo/locality | 630 (Austin), 135 (Round Rock), 135 (San Marcos) | exact match all three            |
+| Rating                        | `Exp.ge(Exp.intBin("rating"), ...)`                                                                                                           | 64 (≥80)                                         | plausible                        |
+| Property type                 | `Exp.eq(Exp.stringBin("propertyType"), ...)`                                                                                                  | 39 (resort), 407 (hotel)                         | exact match both                 |
+| Amenities                     | `ListExp.getByValue(COUNT, ..., Exp.listBin("amenities"))` — plain top-level list, no nesting                                                 | 344 (pool)                                       | plausible                        |
+| Bed type                      | `CdtExp.selectByPath` (scalar leaf) → `ListExp.getByValue`                                                                                    | 864/900 (king)                                   | plausible (5 non-dorm bed types) |
 
 **What doesn't work, and why — a real, isolated finding, not a guess:**
 
 - **Date-range availability** (`$.rooms..rates..available.[?(@ >= X and @ <= Y)].count() > 0`) has
-  no working classic-Exp form. `CdtExp.selectByPath` reliably flattens a nested *scalar* leaf
+  no working classic-Exp form. `CdtExp.selectByPath` reliably flattens a nested _scalar_ leaf
   (proven twice: bed-type above, and `minPriceExpression()`), but does **not** flatten a nested
-  *list*-typed leaf (each rate's "available" list) the same way. Diagnosed by isolating each
+  _list_-typed leaf (each rate's "available" list) the same way. Diagnosed by isolating each
   layer against the real server: `ListExp.size()` on the selected structure correctly reported
   "non-empty" for all 900 records, but every value/range-match attempt against the same structure
   (`getByValue`, `getByValueRange`, with and without an intermediate select, even with a
@@ -237,7 +237,7 @@ count:**
   make simple; replicating it by hand in raw CDT expressions didn't work cleanly in this SDK
   preview. Fixed as an honest application-layer post-filter instead —
   `HotelRecordUtil#hasDateCoverage`, applied to whatever the server's filter already narrowed
-  down. Every *other* predicate in the same query still runs server-side; only this one doesn't.
+  down. Every _other_ predicate in the same query still runs server-side; only this one doesn't.
 - **Name search (`/suggest`)** — `StringExp.regexCompare` (case-insensitive contains) is **also**
   gated to 8.1.3, independently of AEL: confirmed via a one-time capability probe
   (`AerospikeService#supportsClassicStringOps`, a constant expression with no data dependency —
@@ -254,7 +254,7 @@ count:**
 **One more real bug found along the way:** when no index-selecting or scalar predicate applies at
 all (a plain search with only the mandatory date check, which — per above — isn't a classic-Exp
 clause), `expClauses` is empty, and `Exp.and()` called with zero clauses was confirmed to
-degenerate into a filter matching *nothing* rather than *everything*/*no filter* — total silently
+degenerate into a filter matching _nothing_ rather than _everything_/_no filter_ — total silently
 dropped from 900 to 0. `SearchService` special-cases this: an empty clause list runs a plain
 unfiltered query instead of `Exp.and()` on nothing.
 
@@ -293,12 +293,18 @@ The Aerospike image this demo ships with today (`aerospike/aerospike-server:8.1.
 support AEL. `AerospikeService.supportsAel()` reads the SDK's own `Cluster.supportsAel()` (a
 client-side flag derived from the cluster's minimum server version, no round trip needed), and
 every endpoint whose query needs a `.where(String ael, ...)` clause (`POST /search`,
-`GET /suggest`) checks it *before* building the query at all, via `AerospikeService.requireAel()`.
+`GET /suggest`) checks it _before_ building the query at all, via `AerospikeService.requireAel()`.
 When it's false, the endpoint returns:
 
 ```json
-{"error":"AEL_UNSUPPORTED","message":"This query needs Aerospike server 8.1.3+ for AEL; this cluster is running 8.1.2.4. See docs/design.md.","serverVersion":"8.1.2.4","requiredVersion":"8.1.3"}
+{
+	"error": "AEL_UNSUPPORTED",
+	"message": "This query needs Aerospike server 8.1.3+ for AEL; this cluster is running 8.1.2.4. See docs/design.md.",
+	"serverVersion": "8.1.2.4",
+	"requiredVersion": "8.1.3"
+}
 ```
+
 with HTTP 503. This is logged once at first use (not on every request).
 
 I also confirmed, by actually running a `.where(...)` query against a real
@@ -306,7 +312,7 @@ I also confirmed, by actually running a `.where(...)` query against a real
 if that gate weren't there — this is the real, load-bearing part for whoever swaps in an 8.1.3+
 server later:
 
-```
+```text
 com.aerospike.client.sdk.AerospikeException$BinOpInvalidException: Error 26,0,0,0,0,0: Aerospike Expression Language (AEL) requires server version 8.1.3+. Server version is 8.1.2.4
     at com.aerospike.client.sdk.AerospikeException.toException(...)
     at com.aerospike.client.sdk.AelMaterializer.expressionFromString(AelMaterializer.java:35)
@@ -335,7 +341,7 @@ back to the `Exp.geoCompare(Exp.geoBin(...), Exp.geo(...))` form.
 
 Everything in the section above documents behavior against the public
 `aerospike/aerospike-server:8.1.2.4` image, where AEL genuinely isn't supported. This backend has
-also been run against a real server that *does* support AEL server-side — not just with the version
+also been run against a real server that _does_ support AEL server-side — not just with the version
 gate bypassed — to confirm the whole stack end to end, not only the fallback path. If you have
 access to a server build like that, `local/server.rpm` (see `local/README.md`) is how you point this
 repo at it locally; `./demo start` picks it up automatically, and nothing about that setup is
@@ -368,12 +374,12 @@ actually running them and reading the server's own parser errors, not by re-read
 - **A bare CDT root bin needs an explicit `:MAP`/`:LIST` type annotation before it can be wildcarded**
   — `$.rooms.*...` alone fails with `unresolved bin type, use $.bin:LIST or $.bin:MAP`; needs
   `$.rooms:MAP.*...`. Only the root needs it — nested steps (`.rates`, `.available`) resolve fine
-  once the root is typed. Note this is a *different* spelling than the documented mechanism for type
+  once the root is typed. Note this is a _different_ spelling than the documented mechanism for type
   ambiguity in `docs/ael/type-inference.md` (`.get(type: MAP)`) — confirmed the `:MAP` shorthand
   directly against the server's own error message rather than assuming the documented form applies
   here too; a bare CDT membership test like `?x in $.amenities` needed no annotation at all, so this
   seems specific to typing a root that gets iterated with `.*`.
-- Separately (and correctly *not* "fixed" — see below): **a filter predicate `[?(...)]` must
+- Separately (and correctly _not_ "fixed" — see below): **a filter predicate `[?(...)]` must
   directly follow a `*`.** `available.[?(...)]` (a bare field name, then a filter) is a syntax error
   at exactly that position; it needs its own wildcard first: `available.*[?(...)]`.
 
@@ -397,9 +403,9 @@ surface is ahead of what's implemented server-side. `/suggest` now falls through
 alternative instead of failing outright (see "Fixing hotel-name search's fall-through" below).
 
 **Also confirmed on later testing**: `docker compose up -d --build` recreates a service whose image
-changed, but leaves an already-running service whose own config *didn't* change untouched. Swapping
+changed, but leaves an already-running service whose own config _didn't_ change untouched. Swapping
 the aerospike image alone this way left `backend` on a stale connection, still reporting the
-*previous* server's version and throwing `INTERNAL_ERROR` on every query, until explicitly
+_previous_ server's version and throwing `INTERNAL_ERROR` on every query, until explicitly
 force-recreated (`docker compose up -d --force-recreate --no-deps backend`). `./demo start` always
 force-recreates everything together, so this only bites if you run raw `docker compose` commands
 yourself against an already-running stack. The complete `/search` filter matrix (locality, bed,
@@ -418,14 +424,14 @@ layered together — so the AEL branch was applying zero of these two filters. T
 was already surfacing this honestly (a "have no AEL form... aren't reflected" note), but the actual
 search results were wrong, not just under-explained.
 
-Rather than reach for the rank-select syntax (`[#0]`) design.md's own min-price *index* uses, both
+Rather than reach for the rank-select syntax (`[#0]`) design.md's own min-price _index_ uses, both
 turned out to have an exact form as an existence-count — no approximation needed:
 
 - `min(price) >= N  ⇔  no rate has price < N` and `min(price) < N  ⇔  some rate has price < N` — so
   price bracket is `$.rooms:MAP.*.rates.*[?(@.price < ?N)].count() == 0` (at-least) or `> 0` (below),
   filtering the rate object itself, the same shape as the proven bed filter.
-- `hasRoomForOccupancy` checks the *largest* room's capacity (rank -1) — but `max(x) >= N ⇔ at least
-  one x >= N`, so `$.rooms:MAP.*[?(@.maxOccupancy >= ?N)].count() > 0` is exact, not approximate.
+- `hasRoomForOccupancy` checks the _largest_ room's capacity (rank -1) — but `max(x) >= N ⇔ at least
+one x >= N`, so `$.rooms:MAP.*[?(@.maxOccupancy >= ?N)].count() > 0` is exact, not approximate.
 - `roomCountAtLeast` (total room count) turned out simplest of all: `$.rooms:MAP.size() >= N` gave
   "Parameter error" against the real server (`size()` doesn't seem wired up for a bare `:MAP` root
   yet), but counting the wildcard with no filter predicate at all —
@@ -434,9 +440,11 @@ turned out to have an exact form as an existence-count — no approximation need
 All four verified with the same fast standalone-probe technique as the fixes above (bypassing the
 Docker rebuild cycle), then re-verified through the real running backend and, for price
 specifically, through the actual frontend: clicking "Under $100" against Austin (630 hotels) now
-narrows to 243, with `$.rooms:MAP.*.rates.*[?(@.price < 100)].count() > 0` genuinely present in the
-presenter panel's query text — not a note explaining why it's missing. The now-obsolete gap-warning
-(`warnAelGapIfNeeded` and the matching presenter-panel note) were removed rather than left dormant.
+narrows to 243, with `$.rooms:MAP._.rates._[?(@.price < 100)].count() > 0` genuinely present in the
+presenter panel's query text — not a note explaining why it's missing.
+
+The now-obsolete gap-warning (`warnAelGapIfNeeded` and the matching presenter-panel note) were
+removed rather than left dormant.
 
 ## Voyager's expression editor doesn't support AEL path expressions (2026-09-16)
 
@@ -449,11 +457,11 @@ server earlier in this file:
 
 - A bare scalar comparison (`$.rating >= 80`) works fine in Voyager's expression box.
 - Adding a wildcard (`$.rooms.*.count() >= 1`, no `:MAP` even) fails: `no viable alternative at
-  input '$.rooms.*'`. The `:MAP`/`:LIST` annotation this backend needs (see "AEL verified against a
+input '$.rooms.*'`. The `:MAP`/`:LIST` annotation this backend needs (see "AEL verified against a
   real 8.1.3+ server" above) was never reached — the wildcard itself isn't parseable.
 - Voyager's own error text lists `Supported operators: =, !=, >, <, >=, <=` with no `==` — but
   don't take an error message's own claimed scope at face value over an actual test: `$.locality ==
-  'austin-downtown'` (real `==`, straight from a presenter-panel query, just trimmed of everything
+'austin-downtown'` (real `==`, straight from a presenter-panel query, just trimmed of everything
   after it) works fine in Voyager too. So the operator list in that error text is incomplete, not
   authoritative — the real boundary confirmed so far is flat `$.binName op value` scalar comparisons
   (equality included) work; wildcards, path navigation, and filter predicates (`[?(...)]`) don't.
@@ -466,7 +474,7 @@ this repo doesn't control. Practical implications for anyone giving this demo:
   — no AEL filtering involved, so that part of the demo is unaffected.
 - Don't expect to paste a presenter-panel query into Voyager whole and have it run — every real
   `/search` call includes the mandatory date-coverage clause (`$.rooms:MAP.*.rates.*.available.*
-  [?(...)].count() > 0`, checkIn/checkOut being the only two required fields on the endpoint), so
+[?(...)].count() > 0`, checkIn/checkOut being the only two required fields on the endpoint), so
   literally no combination of filters produces a wildcard-free string. There is no search to run
   from the site that sidesteps this — it's structural, not a matter of which filters are picked.
 - The workable version of this demo beat: copy the real AEL from the presenter panel, then trim it
@@ -483,7 +491,12 @@ Found live, by someone actually using the demo, not by re-reading code: hitting 
 typeahead produced this from `/suggest`:
 
 ```json
-{"error":"AEL_UNSUPPORTED","message":"This query needs Aerospike server 8.2.0+ for AEL; this cluster is running 8.2.0.0.","serverVersion":"8.2.0.0","requiredVersion":"8.2.0"}
+{
+	"error": "AEL_UNSUPPORTED",
+	"message": "This query needs Aerospike server 8.2.0+ for AEL; this cluster is running 8.2.0.0.",
+	"serverVersion": "8.2.0.0",
+	"requiredVersion": "8.2.0"
+}
 ```
 
 Read literally, that says the requirement is already met (`8.2.0.0` satisfies `8.2.0+`) and still
@@ -496,7 +509,7 @@ fails — which is exactly what it was doing, and exactly why it read as broken.
 2. **The version gate passes, but the server rejects this specific query anyway**
    (`executeAelQuery()`'s defensive catch): `/suggest`'s `lowercase()` is the confirmed example —
    happens on every AEL-capable server tested so far, regardless of version, because it's a missing
-   function, not a version floor. A version bump does *not* fix this one.
+   function, not a version floor. A version bump does _not_ fix this one.
 
 Both were reported with the same "needs version X+" wording, which is only true for case 1.
 **Fixed** by adding `AelUnsupportedException.versionGateFailed` (`true` for case 1, `false` for
@@ -508,7 +521,7 @@ for case 2, since the versions genuinely did match.
 
 Verified via curl (`/suggest?q=lake` now returns the accurate case-2 message and
 `"versionGateFailed":false`) and live in the browser — with one unrelated speed bump along the way:
-the browser tab initially kept rendering the *old* banner text even after the rebuild, because it
+the browser tab initially kept rendering the _old_ banner text even after the rebuild, because it
 had a cached `index.html` pinned to the previous JS bundle hash; a cache-busted reload
 (`?_cb=`) confirmed the fix was correct all along and the stale render was purely a browser-cache
 artifact, not a code issue.
@@ -520,8 +533,8 @@ degraded, it was **completely broken** — every request 503'd, zero results, ev
 working fallback sat a few lines away in the same file the whole time.
 
 `SuggestService` was written with three tiers (AEL → classic Exp regex → app-layer scan), each
-meant to catch what the one before it couldn't. But the branching only *chose* a tier once, up
-front, based on `aerospike.supportsAel()` — it never caught a rejection *from within* the chosen
+meant to catch what the one before it couldn't. But the branching only _chose_ a tier once, up
+front, based on `aerospike.supportsAel()` — it never caught a rejection _from within_ the chosen
 tier and moved to the next one. Once this cluster's version genuinely satisfied `supportsAel()`,
 every request took the AEL branch, AEL's `lowercase()` failed (the confirmed, real gap from
 "AEL verified against a real 8.1.3+ server" above), and the exception propagated straight to a 503

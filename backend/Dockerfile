@@ -46,10 +46,15 @@ FROM eclipse-temurin:21-jre-alpine
 
 # docker-compose's healthcheck for this service is `wget -qO- http://localhost:8081/health` -
 # Alpine JRE images don't reliably ship a wget build with -qO support, so install it explicitly.
-RUN apk add --no-cache wget
+RUN apk add --no-cache wget \
+    && addgroup -S app && adduser -S app -G app
 
 WORKDIR /app
-COPY --from=build /app/target/booking-backend.jar app.jar
+COPY --from=build --chown=app:app /app/target/booking-backend.jar app.jar
+
+USER app
 
 EXPOSE 8081
+HEALTHCHECK --interval=3s --timeout=3s --retries=40 \
+  CMD wget -qO- http://localhost:8081/health >/dev/null 2>&1 || exit 1
 ENTRYPOINT ["java", "-jar", "app.jar"]

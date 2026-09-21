@@ -1,77 +1,77 @@
 .guests-picker {
-  position: relative;
+	position: relative;
 }
 
 .guests-picker-button {
-  text-align: left;
-  cursor: pointer;
-  background: var(--color-surface);
+	text-align: left;
+	cursor: pointer;
+	background: var(--color-surface);
 }
 
 .guests-picker-popover {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  z-index: 30;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card-hover);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	right: 0;
+	z-index: 30;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-card-hover);
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
 .guests-stepper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 
 .guests-stepper-label {
-  font-size: 14px;
-  color: var(--color-text);
+	font-size: 14px;
+	color: var(--color-text);
 }
 
 .guests-stepper-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .guests-stepper-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-size: 16px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 999px;
+	border: 1px solid var(--color-border);
+	background: var(--color-surface);
+	color: var(--color-text);
+	font-size: 16px;
+	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .guests-stepper-btn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-primary);
 }
 
 .guests-stepper-btn:disabled {
-  opacity: 0.35;
+	opacity: 0.35;
 }
 
 .guests-stepper-value {
-  min-width: 16px;
-  text-align: center;
-  font-weight: 700;
-  font-size: 14px;
+	min-width: 16px;
+	text-align: center;
+	font-weight: 700;
+	font-size: 14px;
 }
 
 .guests-picker-done {
-  align-self: flex-end;
-  margin-top: 2px;
+	align-self: flex-end;
+	margin-top: 2px;
 }

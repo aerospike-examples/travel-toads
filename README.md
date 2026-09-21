@@ -41,7 +41,7 @@ Full design — data model, index design, screen-to-query mapping, and the demo 
 - [x] **Price and guests/rooms filters closed the same gap.** Both originally had a classic-`Exp`
       form only — invisible pre-8.1.3, but a real, silently-dropped-filter bug once AEL went live,
       since a query can only carry one filter condition (AEL or classic, never both). Both turned
-      out to have an *exact* AEL form as an existence-count (`min(price) >= N ⇔ no rate < N`,
+      out to have an _exact_ AEL form as an existence-count (`min(price) >= N ⇔ no rate < N`,
       `max(occupancy) >= N ⇔ some room >= N`), verified the same way as above and confirmed live in
       the frontend ("Under $100" on Austin: 630 → 243 hotels, with the price predicate genuinely in
       the displayed query). See `backend/README.md`'s "Closing the price / guests-and-rooms gap".
@@ -59,7 +59,7 @@ creation never needed AEL and have worked since the start.
 
 ## Running it
 
-```
+```bash
 ./demo start
 ```
 
@@ -67,7 +67,7 @@ See `./demo` (no args) for the full command list (`start`/`reset`/`seed`/`status
 
 ## Repo layout
 
-```
+```text
 docs/design.md         — the design doc (source of truth for data model, indexes, query shapes)
 datagen/               — Maven project; generates data/hotels.ndjson, data/landmarks.json, data/stats.json
 data/                  — generator output (gitignored — regenerate with datagen, don't commit)
@@ -110,7 +110,7 @@ concurrently against a shared contract) both landed:
   entrypoint always eval-templates `/etc/aerospike/aerospike.template.conf` ->
   `/etc/aerospike/aerospike.conf` on every start (baked into the image), and needs to write that
   target itself. Mounting our config directly at the target path made that write fail with
-  "Read-only file system". Fixed by mounting it as the *template* instead
+  "Read-only file system". Fixed by mounting it as the _template_ instead
   (`docker-compose.yml`'s `aerospike` service) — our config has no `${...}`/`$(...)` sequences, so
   the eval-template step is a harmless no-op copy.
 - **Missing `cluster-name`.** This server version refuses to start without one configured; added
@@ -139,7 +139,7 @@ concurrently against a shared contract) both landed:
   `docker compose ...`. A real user (Homebrew's plain `docker` formula, no Docker Desktop, no
   `~/.docker/cli-plugins/` directory at all) hit this: with the compose plugin absent, this Docker
   CLI version (29.x) doesn't fail with the expected `'compose' is not a docker command` — it
-  misparses the *next* argument as a root-level flag, so `docker compose up -d --build` dies with
+  misparses the _next_ argument as a root-level flag, so `docker compose up -d --build` dies with
   `unknown shorthand flag: 'd' in -d` against `docker`'s own usage banner. Reproduced locally by
   temporarily removing `~/.docker/cli-plugins/docker-compose` and confirming the identical error
   (then restoring it) — this is a genuine Docker CLI quirk, not our script or a shell alias. Fixed
@@ -148,7 +148,7 @@ concurrently against a shared contract) both landed:
   Homebrew case: `brew install docker-compose` doesn't symlink the plugin into
   `~/.docker/cli-plugins/` on its own, so `docker compose` stays unresolvable even after installing
   it, until you `ln -sfn "$(brew --prefix)/opt/docker-compose/bin/docker-compose"
-  ~/.docker/cli-plugins/docker-compose` yourself.
+~/.docker/cli-plugins/docker-compose` yourself.
 
 ## Open decisions (see design.md's "Open items" for the full list)
 

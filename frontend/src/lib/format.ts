@@ -1,12 +1,12 @@
 /** Formatting and small data-shape helpers shared across screens. */
 
 export function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+	return s
+		.toLowerCase()
+		.normalize("NFKD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "");
 }
 
 /**
@@ -19,78 +19,79 @@ export function slugify(s: string): string {
  * computes it differently.
  */
 export function toLocalitySlug(city: string, neighborhood: string): string {
-  return `${slugify(city)}-${slugify(neighborhood)}`;
+	return `${slugify(city)}-${slugify(neighborhood)}`;
 }
 
 export function formatIsoDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, "0");
+	const day = String(d.getDate()).padStart(2, "0");
+	return `${y}-${m}-${day}`;
 }
 
 export function addDays(d: Date, days: number): Date {
-  const copy = new Date(d);
-  copy.setDate(copy.getDate() + days);
-  return copy;
+	const copy = new Date(d);
+	copy.setDate(copy.getDate() + days);
+	return copy;
 }
 
 export function todayIso(): string {
-  return formatIsoDate(new Date());
+	return formatIsoDate(new Date());
 }
 
 export function nightsBetween(checkInIso: string, checkOutIso: string): number {
-  const a = new Date(checkInIso + "T00:00:00");
-  const b = new Date(checkOutIso + "T00:00:00");
-  const ms = b.getTime() - a.getTime();
-  return Math.max(0, Math.round(ms / (1000 * 60 * 60 * 24)));
+	const a = new Date(checkInIso + "T00:00:00");
+	const b = new Date(checkOutIso + "T00:00:00");
+	const ms = b.getTime() - a.getTime();
+	return Math.max(0, Math.round(ms / (1000 * 60 * 60 * 24)));
 }
 
 /** "2026-09-16" -> 20260916 (the backend's day-integer format). */
 export function isoToYmdInt(iso: string): number {
-  return Number(iso.replaceAll("-", ""));
+	return Number(iso.replaceAll("-", ""));
 }
 
 /** 20260916 -> "Sep 16, 2026" */
 export function formatYmdInt(n: number): string {
-  const s = String(n).padStart(8, "0");
-  const y = Number(s.slice(0, 4));
-  const m = Number(s.slice(4, 6));
-  const d = Number(s.slice(6, 8));
-  const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+	const s = String(n).padStart(8, "0");
+	const y = Number(s.slice(0, 4));
+	const m = Number(s.slice(4, 6));
+	const d = Number(s.slice(6, 8));
+	const date = new Date(y, m - 1, d);
+	return date.toLocaleDateString(undefined, {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	});
 }
 
 export function formatIsoDatePretty(iso: string): string {
-  const date = new Date(iso + "T00:00:00");
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+	const date = new Date(iso + "T00:00:00");
+	return date.toLocaleDateString(undefined, {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	});
 }
 
 export function formatMoney(n: number): string {
-  return `$${Math.round(n).toLocaleString()}`;
+	return `$${Math.round(n).toLocaleString()}`;
 }
 
 export function formatRating(n: number): string {
-  return (n / 10).toFixed(1);
+	return (n / 10).toFixed(1);
 }
 
 export function ratingLabel(n: number): string {
-  if (n >= 90) return "Superb";
-  if (n >= 80) return "Very good";
-  if (n >= 70) return "Good";
-  if (n >= 60) return "Pleasant";
-  return "Fair";
+	if (n >= 90) return "Superb";
+	if (n >= 80) return "Very good";
+	if (n >= 70) return "Good";
+	if (n >= 60) return "Pleasant";
+	return "Fair";
 }
 
 export function stars(n: number): string {
-  return "★".repeat(Math.max(0, Math.min(5, n))) + "☆".repeat(Math.max(0, 5 - n));
+	return (
+		"★".repeat(Math.max(0, Math.min(5, n))) + "☆".repeat(Math.max(0, 5 - n))
+	);
 }
-

@@ -15,13 +15,13 @@ import type { GuestsRooms } from "../components/GuestsRoomsPicker";
  * actually returns to where the user was, not to "/" with nothing set.
  */
 export interface RestorableSearchState {
-  landmarkId: string;
-  radiusMiles: number;
-  locality: string;
-  city: string;
-  checkIn: string;
-  checkOut: string;
-  guests: GuestsRooms;
-  filters: Filters;
-  page: number;
+	landmarkId: string;
+	radiusMiles: number;
+	locality: string;
+	city: string;
+	checkIn: string;
+	checkOut: string;
+	guests: GuestsRooms;
+	filters: Filters;
+	page: number;
 }

@@ -15,20 +15,24 @@ import "./Header.css";
  * down to being non-functional chrome — see HeaderUtilityBar's own comment.
  */
 export function Header() {
-  return (
-    <header className="site-header">
-      <HeaderUtilityBar />
-      <div className="container site-header-inner">
-        <Link to="/" className="brand">
-          <img src={travelToadsMark} alt="" className="brand-mark" />
-          <span className="brand-text">
-            <span className="brand-name">TravelToads</span>
-            <span className="brand-tagline">Find the perfect lilypad.</span>
-          </span>
-        </Link>
+	return (
+		<header className="site-header">
+			<HeaderUtilityBar />
+			<div className="container site-header-inner">
+				<Link to="/" className="brand">
+					<img src={travelToadsMark} alt="" className="brand-mark" />
+					<span className="brand-text">
+						<span className="brand-name">TravelToads</span>
+						<span className="brand-tagline">Find the perfect lilypad.</span>
+					</span>
+				</Link>
 
-        <img src={bannerAd} alt="Book now and get $500 off your reservation" className="header-banner-ad" />
-      </div>
-    </header>
-  );
+				<img
+					src={bannerAd}
+					alt="Book now and get $500 off your reservation"
+					className="header-banner-ad"
+				/>
+			</div>
+		</header>
+	);
 }

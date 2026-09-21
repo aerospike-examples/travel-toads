@@ -6,11 +6,11 @@ import App from "./App.tsx";
 import { DemoModeProvider } from "./context/DemoModeContext";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <DemoModeProvider>
-        <App />
-      </DemoModeProvider>
-    </BrowserRouter>
-  </StrictMode>,
+	<StrictMode>
+		<BrowserRouter>
+			<DemoModeProvider>
+				<App />
+			</DemoModeProvider>
+		</BrowserRouter>
+	</StrictMode>,
 );

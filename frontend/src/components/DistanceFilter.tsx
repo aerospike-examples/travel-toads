@@ -3,11 +3,11 @@ import type { Landmark } from "../api/types";
 import "./DistanceFilter.css";
 
 interface DistanceFilterProps {
-  landmarks: Landmark[];
-  landmarkId: string;
-  radiusMiles: number;
-  onLandmarkChange: (landmarkId: string) => void;
-  onRadiusChange: (miles: number) => void;
+	landmarks: Landmark[];
+	landmarkId: string;
+	radiusMiles: number;
+	onLandmarkChange: (landmarkId: string) => void;
+	onRadiusChange: (miles: number) => void;
 }
 
 type Kind = "airport" | "downtown";
@@ -31,76 +31,83 @@ const MAX_MILES = 200;
  * visible on the page doesn't force a destination on first landing.
  */
 export function DistanceFilter({
-  landmarks,
-  landmarkId,
-  radiusMiles,
-  onLandmarkChange,
-  onRadiusChange,
+	landmarks,
+	landmarkId,
+	radiusMiles,
+	onLandmarkChange,
+	onRadiusChange,
 }: DistanceFilterProps) {
-  const airport = landmarks.find((l) => l.type === "airport");
-  const downtown = landmarks.find((l) => l.type === "city_center");
+	const airport = landmarks.find((l) => l.type === "airport");
+	const downtown = landmarks.find((l) => l.type === "city_center");
 
-  const [kind, setKind] = useState<Kind>(landmarkId === downtown?.landmarkId ? "downtown" : "airport");
-  const [radiusText, setRadiusText] = useState(
-    landmarkId && (landmarkId === airport?.landmarkId || landmarkId === downtown?.landmarkId)
-      ? String(radiusMiles)
-      : "",
-  );
+	const [kind, setKind] = useState<Kind>(
+		landmarkId === downtown?.landmarkId ? "downtown" : "airport",
+	);
+	const [radiusText, setRadiusText] = useState(
+		landmarkId &&
+			(landmarkId === airport?.landmarkId ||
+				landmarkId === downtown?.landmarkId)
+			? String(radiusMiles)
+			: "",
+	);
 
-  function idFor(k: Kind): string | undefined {
-    return k === "airport" ? airport?.landmarkId : downtown?.landmarkId;
-  }
+	function idFor(k: Kind): string | undefined {
+		return k === "airport" ? airport?.landmarkId : downtown?.landmarkId;
+	}
 
-  function apply(nextKind: Kind, text: string) {
-    const parsed = Math.round(Number(text));
-    if (text.trim() === "" || !Number.isFinite(parsed)) {
-      // Nothing valid entered — if this control was the one driving the destination, clear it;
-      // otherwise leave whatever else (e.g. the Destination box) has set alone.
-      if (landmarkId === airport?.landmarkId || landmarkId === downtown?.landmarkId) {
-        onLandmarkChange("");
-      }
-      return;
-    }
-    const clamped = Math.min(MAX_MILES, Math.max(MIN_MILES, parsed));
-    setRadiusText(String(clamped));
-    const id = idFor(nextKind);
-    if (id) onLandmarkChange(id);
-    onRadiusChange(clamped);
-  }
+	function apply(nextKind: Kind, text: string) {
+		const parsed = Math.round(Number(text));
+		if (text.trim() === "" || !Number.isFinite(parsed)) {
+			// Nothing valid entered — if this control was the one driving the destination, clear it;
+			// otherwise leave whatever else (e.g. the Destination box) has set alone.
+			if (
+				landmarkId === airport?.landmarkId ||
+				landmarkId === downtown?.landmarkId
+			) {
+				onLandmarkChange("");
+			}
+			return;
+		}
+		const clamped = Math.min(MAX_MILES, Math.max(MIN_MILES, parsed));
+		setRadiusText(String(clamped));
+		const id = idFor(nextKind);
+		if (id) onLandmarkChange(id);
+		onRadiusChange(clamped);
+	}
 
-  return (
-    <div className="distance-filter">
-      <span className="distance-filter-label">Within</span>
-      <input
-        type="number"
-        inputMode="numeric"
-        className="text-input distance-radius-input"
-        min={MIN_MILES}
-        max={MAX_MILES}
-        value={radiusText}
-        onChange={(e) => setRadiusText(e.target.value)}
-        onBlur={() => apply(kind, radiusText)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            apply(kind, radiusText);
-          }
-        }}
-      />
-      <span className="distance-filter-label">miles of</span>
-      <select
-        className="select-input"
-        aria-label="Landmark"
-        value={kind}
-        onChange={(e) => {
-          const nextKind = e.target.value as Kind;
-          setKind(nextKind);
-          apply(nextKind, radiusText);
-        }}
-      >
-        <option value="airport">Airport</option>
-        <option value="downtown">Downtown</option>
-      </select>
-    </div>
-  );
+	return (
+		<div className="distance-filter">
+			<span className="distance-filter-label">Within</span>
+			<input
+				type="number"
+				inputMode="numeric"
+				className="text-input distance-radius-input"
+				min={MIN_MILES}
+				max={MAX_MILES}
+				value={radiusText}
+				onChange={(e) => setRadiusText(e.target.value)}
+				onBlur={() => apply(kind, radiusText)}
+				onKeyDown={(e) => {
+					if (e.key === "Enter") {
+						e.preventDefault();
+						apply(kind, radiusText);
+					}
+				}}
+			/>
+			<span className="distance-filter-label">miles of</span>
+			<select
+				className="select-input"
+				aria-label="Landmark"
+				value={kind}
+				onChange={(e) => {
+					const nextKind = e.target.value as Kind;
+					setKind(nextKind);
+					apply(nextKind, radiusText);
+				}}
+			>
+				<option value="airport">Airport</option>
+				<option value="downtown">Downtown</option>
+			</select>
+		</div>
+	);
 }

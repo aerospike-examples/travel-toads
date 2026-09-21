@@ -7,7 +7,7 @@ who's been building it, this is your whole runbook — nothing else to read firs
 
 - **Docker Desktop**, installed and running. (Colima works too — see `README.md`'s note on
   alternatives — but Docker Desktop is the tested path.)
-- **The demo package**: a zip file containing the full app *and* a private Aerospike server build
+- **The demo package**: a zip file containing the full app _and_ a private Aerospike server build
   already placed at `local/server.rpm`. If you don't have this zip, ask whoever gave you this guide
   — the server build is unreleased software and isn't something you can get any other way.
 - About 5 minutes before your slot.
@@ -44,7 +44,7 @@ You want to see `AEL supported=true`. If it says `false`, the demo will still ru
 an equivalent non-AEL query path automatically) but you won't get the "watch the real AEL query"
 beat — see `backend/README.md` if this happens and you weren't expecting it.
 
-Then open **http://localhost:8080**, run any search, open the presenter panel (the small `<` tab on
+Then open **<http://localhost:8080>**, run any search, open the presenter panel (the small `<` tab on
 the right edge of the results page), and confirm you see real AEL text and an index name like
 `hotel-loc-idx` or `hotel-locality-idx` — not a "results unavailable" banner.
 
@@ -55,7 +55,7 @@ the right edge of the results page), and confirm you see real AEL text and an in
    ```bash
    ./demo reset
    ```
-2. **Open http://localhost:8080** in the browser you'll actually present from.
+2. **Open <http://localhost:8080>** in the browser you'll actually present from.
 3. **Decide up front whether you're doing the Voyager beat.** If yes: open Voyager, connect to the
    demo cluster, and make sure **"Use services alternate" is enabled** on that connection — without
    it, Voyager can't reach the server from the host at all (see `aerospike/aerospike.conf`'s own
@@ -78,14 +78,14 @@ the right edge of the results page), and confirm you see real AEL text and an in
 
 ## Command reference
 
-| Command | What it does |
-|---|---|
-| `./demo start` | Build and start everything. Safe to re-run any time. |
-| `./demo reset` | Undo bookings, restore the seeded dataset — a few seconds, no rebuild. |
-| `./demo seed` | Regenerate the dataset from scratch (only needed if you changed generator settings). |
-| `./demo status` | Container and backend health at a glance. |
-| `./demo logs` | Tail every service's logs (`./demo logs backend` for just one). |
-| `./demo stop` | Shut everything down. Data persists for next time. |
+| Command         | What it does                                                                         |
+| --------------- | ------------------------------------------------------------------------------------ |
+| `./demo start`  | Build and start everything. Safe to re-run any time.                                 |
+| `./demo reset`  | Undo bookings, restore the seeded dataset — a few seconds, no rebuild.               |
+| `./demo seed`   | Regenerate the dataset from scratch (only needed if you changed generator settings). |
+| `./demo status` | Container and backend health at a glance.                                            |
+| `./demo logs`   | Tail every service's logs (`./demo logs backend` for just one).                      |
+| `./demo stop`   | Shut everything down. Data persists for next time.                                   |
 
 ## If something breaks during setup and you're stuck
 

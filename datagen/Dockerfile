@@ -16,7 +16,15 @@ RUN mvn -q -B package
 # which breaks this on Apple Silicon. A jar compiled for release 17 runs fine
 # on a 21 JRE, and 21-jre-alpine is multi-arch (also what backend/Dockerfile uses).
 FROM eclipse-temurin:21-jre-alpine
+RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
-COPY --from=build /build/target/datagen.jar ./datagen.jar
+COPY --from=build --chown=app:app /build/target/datagen.jar ./datagen.jar
+# Owned by `app` before the VOLUME instruction so a fresh named volume (first run) inherits
+# writable permissions for the non-root user below — Docker copies the image directory's content
+# and ownership into an empty named volume the first time it's mounted.
+RUN mkdir -p /data && chown app:app /data
 VOLUME ["/data"]
+USER app
+# One-shot job: generates the dataset and exits, no long-running process to healthcheck.
+HEALTHCHECK NONE
 ENTRYPOINT ["java", "-jar", "/app/datagen.jar"]

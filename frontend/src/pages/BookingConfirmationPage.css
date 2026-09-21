@@ -1,81 +1,81 @@
 .confirmation-page {
-  padding: 60px 24px;
-  display: flex;
-  justify-content: center;
+	padding: 60px 24px;
+	display: flex;
+	justify-content: center;
 }
 
 .confirmation-card {
-  max-width: 520px;
-  width: 100%;
-  padding: 40px;
-  text-align: center;
+	max-width: 520px;
+	width: 100%;
+	padding: 40px;
+	text-align: center;
 }
 
 .confirmation-empty {
-  padding: 60px 40px;
+	padding: 60px 40px;
 }
 
 .confirmation-empty p {
-  margin: 12px 0 22px;
-  color: var(--color-text-muted);
+	margin: 12px 0 22px;
+	color: var(--color-text-muted);
 }
 
 .confirmation-check {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: 800;
+	width: 56px;
+	height: 56px;
+	margin: 0 auto 16px;
+	border-radius: 50%;
+	background: var(--color-primary-light);
+	color: var(--color-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 28px;
+	font-weight: 800;
 }
 
 .confirmation-sub {
-  margin-top: 6px;
-  color: var(--color-text-muted);
-  font-size: 14px;
+	margin-top: 6px;
+	color: var(--color-text-muted);
+	font-size: 14px;
 }
 
 .confirmation-details {
-  margin: 28px 0;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px 20px;
-  background: var(--color-surface-muted);
-  border-radius: var(--radius-md);
+	margin: 28px 0;
+	text-align: left;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 18px 20px;
+	background: var(--color-surface-muted);
+	border-radius: var(--radius-md);
 }
 
 .confirmation-details div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
 }
 
 .confirmation-details dt {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--color-text-faint);
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--color-text-faint);
 }
 
 .confirmation-details dd {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: right;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	text-align: right;
 }
 
 .confirmation-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 24px;
+	display: flex;
+	gap: 10px;
+	justify-content: center;
+	margin-top: 24px;
 }

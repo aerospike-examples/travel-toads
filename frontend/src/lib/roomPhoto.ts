@@ -17,14 +17,14 @@ import twin from "../assets/room-photos/twin.jpg";
  * single-occupant beds), rather than showing nothing or a random unrelated room.
  */
 const ROOM_PHOTO_BY_BED: Record<string, string> = {
-  king,
-  queen,
-  double: doubleBed,
-  twin,
-  sofa_bed: sofaBed,
-  bunk: twin,
+	king,
+	queen,
+	double: doubleBed,
+	twin,
+	sofa_bed: sofaBed,
+	bunk: twin,
 };
 
 export function roomPhotoUrl(bed: string): string | undefined {
-  return ROOM_PHOTO_BY_BED[bed];
+	return ROOM_PHOTO_BY_BED[bed];
 }

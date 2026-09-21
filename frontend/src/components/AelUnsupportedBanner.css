@@ -1,43 +1,43 @@
 .ael-banner {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  padding: 18px 20px;
-  margin: 16px 0;
-  background: var(--color-warn-bg);
-  border: 1px solid var(--color-warn-border);
-  border-radius: var(--radius-md);
+	display: flex;
+	gap: 14px;
+	align-items: flex-start;
+	padding: 18px 20px;
+	margin: 16px 0;
+	background: var(--color-warn-bg);
+	border: 1px solid var(--color-warn-border);
+	border-radius: var(--radius-md);
 }
 
 .ael-banner-icon {
-  font-size: 22px;
-  line-height: 1;
-  margin-top: 2px;
+	font-size: 22px;
+	line-height: 1;
+	margin-top: 2px;
 }
 
 .ael-banner-title {
-  font-weight: 700;
-  font-size: 15px;
-  margin-bottom: 4px;
-  color: #6b5108;
+	font-weight: 700;
+	font-size: 15px;
+	margin-bottom: 4px;
+	color: #6b5108;
 }
 
 .ael-banner-message {
-  color: #7a5f14;
-  font-size: 13.5px;
-  line-height: 1.55;
-  max-width: 62ch;
+	color: #7a5f14;
+	font-size: 13.5px;
+	line-height: 1.55;
+	max-width: 62ch;
 }
 
 .ael-banner-versions {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #8a6d1c;
+	margin-top: 8px;
+	font-size: 12px;
+	color: #8a6d1c;
 }
 
 .ael-banner-versions code {
-  font-family: var(--font-mono);
-  background: rgba(255, 255, 255, 0.6);
-  padding: 1px 6px;
-  border-radius: 4px;
+	font-family: var(--font-mono);
+	background: rgba(255, 255, 255, 0.6);
+	padding: 1px 6px;
+	border-radius: 4px;
 }

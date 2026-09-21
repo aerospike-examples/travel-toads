@@ -1,6 +1,6 @@
 # TravelToads demo — script
 
-Starts here: **http://localhost:8080 is already open, the demo's been freshly reset**
+Starts here: **<http://localhost:8080> is already open, the demo's been freshly reset**
 (`./demo reset`). If that's not true yet, see `docs/demo-setup.md` first.
 
 Timings are rough guides for a ~10-minute walkthrough, not a strict script — the "say" lines are
@@ -63,8 +63,8 @@ and the result count updates to match.
 
 **Say:** "Every one of those chips is a real predicate getting added to the same query, live. Price
 and guest count in particular used to be UI-only — they're now both genuinely evaluated by the
-database, not just decorative filters that quietly did nothing." *(Only mention the "used to be"
-part to a technical/internal audience — it's a real fix, not customer-facing framing.)*
+database, not just decorative filters that quietly did nothing." _(Only mention the "used to be"
+part to a technical/internal audience — it's a real fix, not customer-facing framing.)_
 
 ---
 

@@ -28,15 +28,15 @@ Stack: Java SDK (or Python SDK), AEL, and Path Expressions.
 
 ## Screen-to-query mapping
 
-| Frontend surface | Backend endpoint | What it exercises |
-|---|---|---|
-| Destination + date search | `POST /search` | locality index or geo index, plus date coverage via path expressions |
-| "Within N miles of the airport / downtown" | `POST /search` (radius param) | AeroCircle built from a landmarks point, GEO2DSPHERE index |
-| Neighborhood chips | `POST /search` | `hotel-locality-idx` — a different index, same code shape |
-| Filter sidebar: rating, price, amenities, property type, bed, view | `POST /search` | filter-expression predicates layered on the index scan |
-| Property name typeahead | `GET /suggest` | 8.1.3 string API in AEL, Unicode-safe |
-| Property detail: rooms and rate options for the chosen dates | `GET /hotels/{id}` | path-expression projection — only matching rooms and rate segments cross the wire |
-| Book | `POST /bookings` | atomic remove-from-`available` + append-to-`booked` with a count check |
+| Frontend surface                                                   | Backend endpoint              | What it exercises                                                                 |
+| ------------------------------------------------------------------ | ----------------------------- | --------------------------------------------------------------------------------- |
+| Destination + date search                                          | `POST /search`                | locality index or geo index, plus date coverage via path expressions              |
+| "Within N miles of the airport / downtown"                         | `POST /search` (radius param) | AeroCircle built from a landmarks point, GEO2DSPHERE index                        |
+| Neighborhood chips                                                 | `POST /search`                | `hotel-locality-idx` — a different index, same code shape                         |
+| Filter sidebar: rating, price, amenities, property type, bed, view | `POST /search`                | filter-expression predicates layered on the index scan                            |
+| Property name typeahead                                            | `GET /suggest`                | 8.1.3 string API in AEL, Unicode-safe                                             |
+| Property detail: rooms and rate options for the chosen dates       | `GET /hotels/{id}`            | path-expression projection — only matching rooms and rate segments cross the wire |
+| Book                                                               | `POST /bookings`              | atomic remove-from-`available` + append-to-`booked` with a count check            |
 
 Worth considering: show the query alongside the result. A collapsible panel that displays the AEL
 string driving the current view — updating live as filter chips are toggled — makes the "readable
@@ -49,21 +49,21 @@ single highest-leverage frontend feature for this audience.
 Generated, not scraped. Enough volume that filters and indexes visibly do work, small enough to load
 quickly on a laptop.
 
-| Dimension | Target | Why |
-|---|---|---|
-| Cities | One main + two adjacent — Austin, plus Round Rock (north) and San Marcos (south) | Not one city — with a single city the `locality` slug is always `austin-*` and the city+neighborhood composite adds nothing over neighborhood alone. Adjacency specifically is what makes the radius slider interesting. |
-| Hotels | 500–2,000 total | Roughly 70% Austin, 15% each adjacent. Enough that an unfiltered result set is obviously too big and each chip visibly cuts it down. |
-| Neighborhoods | 6–8 Austin, 3 each adjacent | Real ones — Austin: Downtown, South Congress, East Austin, Zilker, Rainey Street, The Domain. Gives the locality index real cardinality without flattening the main city into the suburbs. |
-| Rooms per hotel | 10–40 | Keeps records inside Aerospike's 1–128 KiB sweet spot. |
-| Date window | 90 days | Constrained deliberately. A full year of per-day availability across every room bloats records and index entries for no demo value. |
+| Dimension       | Target                                                                           | Why                                                                                                                                                                                                                      |
+| --------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Cities          | One main + two adjacent — Austin, plus Round Rock (north) and San Marcos (south) | Not one city — with a single city the `locality` slug is always `austin-*` and the city+neighborhood composite adds nothing over neighborhood alone. Adjacency specifically is what makes the radius slider interesting. |
+| Hotels          | 500–2,000 total                                                                  | Roughly 70% Austin, 15% each adjacent. Enough that an unfiltered result set is obviously too big and each chip visibly cuts it down.                                                                                     |
+| Neighborhoods   | 6–8 Austin, 3 each adjacent                                                      | Real ones — Austin: Downtown, South Congress, East Austin, Zilker, Rainey Street, The Domain. Gives the locality index real cardinality without flattening the main city into the suburbs.                               |
+| Rooms per hotel | 10–40                                                                            | Keeps records inside Aerospike's 1–128 KiB sweet spot.                                                                                                                                                                   |
+| Date window     | 90 days                                                                          | Constrained deliberately. A full year of per-day availability across every room bloats records and index entries for no demo value.                                                                                      |
 
 ### Metro layout
 
-| City | Approx. centre [lon, lat] | From downtown Austin | Role in the data |
-|---|---|---|---|
-| Austin (main) | [-97.7431, 30.2672] | — | Urban mix: hotels, hostels, apartments. Carries the SXSW sold-out week. |
-| Round Rock | [-97.6789, 30.5083] | ~18 mi N | Suburban business travel: chain hotels, motels. Thinner amenity lists. |
-| San Marcos | [-97.9414, 29.8833] | ~29 mi SW | University + outlet-mall destination: budget hotels, B&Bs, resorts. |
+| City          | Approx. centre [lon, lat] | From downtown Austin | Role in the data                                                        |
+| ------------- | ------------------------- | -------------------- | ----------------------------------------------------------------------- |
+| Austin (main) | [-97.7431, 30.2672]       | —                    | Urban mix: hotels, hostels, apartments. Carries the SXSW sold-out week. |
+| Round Rock    | [-97.6789, 30.5083]       | ~18 mi N             | Suburban business travel: chain hotels, motels. Thinner amenity lists.  |
+| San Marcos    | [-97.9414, 29.8833]       | ~29 mi SW            | University + outlet-mall destination: budget hotels, B&Bs, resorts.     |
 
 All three sit on the I-35 corridor, bracketing Austin north and south, and all three are served by
 the same airport — which is realistic and useful, because "near AUS" legitimately spans city
@@ -118,67 +118,110 @@ attributes plus a list of date-bounded rate periods.
 
 ```json
 {
-  "hotelId": "HTL-4021",
-  "name": "Lakeside Grand",
-  "city": "Austin",
-  "neighborhood": "Downtown",
-  "locality": "austin-downtown",
-  "propertyType": "hotel",
-  "location": { "type": "Point", "coordinates": [-97.7450, 30.2640] },
-  "stars": 4,
-  "rating": 86,
-  "reviewCount": 1247,
-  "amenities": ["breakfast_included", "free_cancellation", "pool",
-                "fitness", "restaurant", "room_service", "airport_shuttle"],
-  "rooms": {
-    "room-101": {
-      "bed": "king",
-      "sqm": 34,
-      "view": "pool",
-      "maxOccupancy": 2,
-      "nonSmoking": true,
-      "amenities": ["air_conditioning", "private_bathroom", "balcony",
-                    "tv", "coffee_maker", "refrigerator", "bath"],
-      "rates": [
-        { "rateId": "WKD", "from": 20260916, "to": 20260917, "price": 144,
-          "available": [20260916, 20260917], "booked": [] },
-        { "rateId": "WKND", "from": 20260918, "to": 20260919, "price": 165,
-          "available": [20260919],
-          "booked": [ { "day": 20260918, "reservationId": "RES-88213",
-                        "breakfast": true, "flex": false } ] }
-      ]
-    },
-    "room-402": {
-      "bed": "twin",
-      "sqm": 28,
-      "view": "street",
-      "maxOccupancy": 2,
-      "nonSmoking": true,
-      "amenities": ["air_conditioning", "private_bathroom", "tv"],
-      "rates": [
-        { "rateId": "WKD", "from": 20260916, "to": 20260917, "price": 118,
-          "available": [20260916, 20260917], "booked": [] },
-        { "rateId": "WKND", "from": 20260918, "to": 20260919, "price": 152,
-          "available": [], "booked": [] }
-      ]
-    }
-  }
+	"hotelId": "HTL-4021",
+	"name": "Lakeside Grand",
+	"city": "Austin",
+	"neighborhood": "Downtown",
+	"locality": "austin-downtown",
+	"propertyType": "hotel",
+	"location": { "type": "Point", "coordinates": [-97.745, 30.264] },
+	"stars": 4,
+	"rating": 86,
+	"reviewCount": 1247,
+	"amenities": [
+		"breakfast_included",
+		"free_cancellation",
+		"pool",
+		"fitness",
+		"restaurant",
+		"room_service",
+		"airport_shuttle"
+	],
+	"rooms": {
+		"room-101": {
+			"bed": "king",
+			"sqm": 34,
+			"view": "pool",
+			"maxOccupancy": 2,
+			"nonSmoking": true,
+			"amenities": [
+				"air_conditioning",
+				"private_bathroom",
+				"balcony",
+				"tv",
+				"coffee_maker",
+				"refrigerator",
+				"bath"
+			],
+			"rates": [
+				{
+					"rateId": "WKD",
+					"from": 20260916,
+					"to": 20260917,
+					"price": 144,
+					"available": [20260916, 20260917],
+					"booked": []
+				},
+				{
+					"rateId": "WKND",
+					"from": 20260918,
+					"to": 20260919,
+					"price": 165,
+					"available": [20260919],
+					"booked": [
+						{
+							"day": 20260918,
+							"reservationId": "RES-88213",
+							"breakfast": true,
+							"flex": false
+						}
+					]
+				}
+			]
+		},
+		"room-402": {
+			"bed": "twin",
+			"sqm": 28,
+			"view": "street",
+			"maxOccupancy": 2,
+			"nonSmoking": true,
+			"amenities": ["air_conditioning", "private_bathroom", "tv"],
+			"rates": [
+				{
+					"rateId": "WKD",
+					"from": 20260916,
+					"to": 20260917,
+					"price": 118,
+					"available": [20260916, 20260917],
+					"booked": []
+				},
+				{
+					"rateId": "WKND",
+					"from": 20260918,
+					"to": 20260919,
+					"price": 152,
+					"available": [],
+					"booked": []
+				}
+			]
+		}
+	}
 }
 ```
 
 ### Design decisions worth keeping straight
 
-| Decision | Rationale |
-|---|---|
-| Dates are YYYYMMDD integers | Readable on screen and integer-comparable. Removes the earlier ISO-string + unix-timestamp pair entirely. |
-| `available` is a list of day integers; `booked` is a list of maps | Booking removes a day from `available` and appends to `booked`. Coverage checking becomes a count, not interval-overlap plus gap detection. |
-| `from`/`to` stay as immutable period bounds | The rate period is policy and doesn't change; `available` is inventory and shrinks. Same ARI (Availability/Rates/Inventory) split real channel-manager feeds use. |
-| `rating` is 0–100 integer | Displayed as divide-by-ten (86 → 8.6). Sidesteps the float-indexability question entirely. Guard: next to `stars: 4` this reads like a percentage — document it in the mapper and README so nobody "fixes" it. |
-| Physical attributes on the room, time-varying on the rate | `bed`, `sqm`, `view`, `maxOccupancy`, `nonSmoking`, room `amenities` never change. Price and availability do. |
-| Amenities are codes, not display strings | `wifi`, not "Free WiFi". A global travel brand runs in dozens of languages — the frontend localizes. Cheap now, painful to retrofit. |
-| `breakfast_included` / `free_cancellation` are hotel amenities | Coarse property-level search chips, matching how OTA filters actually behave. `wifi` and `parking` dropped — a chip matching every record is a dead chip on camera. |
-| `locality` is a mapper-computed slug | `city` + `neighborhood` normalized to `austin-downtown`. Aerospike has no composite indexes; this is the workaround, and storing it keeps the index a plain bin index. Requires more than one city in the seed data to be meaningful. |
-| Prices are whole dollars | Readability over correctness for the demo. Cents-as-integers is the production answer. |
+| Decision                                                          | Rationale                                                                                                                                                                                                                             |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dates are YYYYMMDD integers                                       | Readable on screen and integer-comparable. Removes the earlier ISO-string + unix-timestamp pair entirely.                                                                                                                             |
+| `available` is a list of day integers; `booked` is a list of maps | Booking removes a day from `available` and appends to `booked`. Coverage checking becomes a count, not interval-overlap plus gap detection.                                                                                           |
+| `from`/`to` stay as immutable period bounds                       | The rate period is policy and doesn't change; `available` is inventory and shrinks. Same ARI (Availability/Rates/Inventory) split real channel-manager feeds use.                                                                     |
+| `rating` is 0–100 integer                                         | Displayed as divide-by-ten (86 → 8.6). Sidesteps the float-indexability question entirely. Guard: next to `stars: 4` this reads like a percentage — document it in the mapper and README so nobody "fixes" it.                        |
+| Physical attributes on the room, time-varying on the rate         | `bed`, `sqm`, `view`, `maxOccupancy`, `nonSmoking`, room `amenities` never change. Price and availability do.                                                                                                                         |
+| Amenities are codes, not display strings                          | `wifi`, not "Free WiFi". A global travel brand runs in dozens of languages — the frontend localizes. Cheap now, painful to retrofit.                                                                                                  |
+| `breakfast_included` / `free_cancellation` are hotel amenities    | Coarse property-level search chips, matching how OTA filters actually behave. `wifi` and `parking` dropped — a chip matching every record is a dead chip on camera.                                                                   |
+| `locality` is a mapper-computed slug                              | `city` + `neighborhood` normalized to `austin-downtown`. Aerospike has no composite indexes; this is the workaround, and storing it keeps the index a plain bin index. Requires more than one city in the seed data to be meaningful. |
+| Prices are whole dollars                                          | Readability over correctness for the demo. Cents-as-integers is the production answer.                                                                                                                                                |
 
 ### Set: landmarks
 
@@ -209,12 +252,12 @@ UI's mile chips need one conversion table (1 mi = 1609, 3 mi = 4828, 5 mi = 8047
 
 Four indexes. Three are plain bin indexes; only minimum price needs an expression.
 
-| Index | ktype | itype | Source | Role |
-|---|---|---|---|---|
-| `hotel-loc-idx` | geo2dsphere | default | `location` bin | distance-from-landmark searches |
-| `hotel-locality-idx` | string | default | `locality` bin | neighborhood browse |
-| `hotel-rating-idx` | numeric | default | `rating` bin | quality chip (8.0+ → `>= 80`) |
-| `hotel-minprice-idx` | numeric | default | expression, rank-0 over rate prices | price chip |
+| Index                | ktype       | itype   | Source                              | Role                            |
+| -------------------- | ----------- | ------- | ----------------------------------- | ------------------------------- |
+| `hotel-loc-idx`      | geo2dsphere | default | `location` bin                      | distance-from-landmark searches |
+| `hotel-locality-idx` | string      | default | `locality` bin                      | neighborhood browse             |
+| `hotel-rating-idx`   | numeric     | default | `rating` bin                        | quality chip (8.0+ → `>= 80`)   |
+| `hotel-minprice-idx` | numeric     | default | expression, rank-0 over rate prices | price chip                      |
 
 ### Creating them — SDK
 
@@ -253,7 +296,7 @@ knowing it exists.
 
 Ops-side equivalent (for the runbook, not the demo):
 
-```
+```bash
 asadm -e "enable; manage sindex create geo2dsphere hotel-loc-idx      ns demo set hotels bin location"
 asadm -e "enable; manage sindex create string      hotel-locality-idx ns demo set hotels bin locality"
 asadm -e "enable; manage sindex create numeric     hotel-rating-idx   ns demo set hotels bin rating"
@@ -299,14 +342,14 @@ downstream.
 
 Worth its own slide — most demos never say this part out loud.
 
-| Candidate | Why not |
-|---|---|
-| Available days (list of day integers) | The obvious index, and the wrong one. Day values repeat across rooms, so a date range query returns the record once per matching (room, rate, day) — up to 80× for a 4-night search on a 20-room hotel. The SI docs confirm range queries on collection indexes require application-side dedup. Bad DX; not shown. |
-| Bed types via path extraction | Same failure mode — a hotel with ten king rooms writes `king` ten times. If needed later, use a denormalized distinct `bedTypes` rollup instead. |
-| Amenities (list, string) | Would be safe — a hotel lists `pool` once, so equality hits one entry per record. Dropped to keep the index set tight. |
-| `propertyType` | Six values across the dataset. Terrible selectivity; the index costs more than it saves. Filter expression. (`entriesPerBval` proves it.) |
-| `reviewCount`, `stars`, `maxOccupancy`, `nonSmoking` | Cheap filter-expression predicates on an already-narrowed set. |
-| `landmarks.location` | Search origin, never search target. |
+| Candidate                                            | Why not                                                                                                                                                                                                                                                                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Available days (list of day integers)                | The obvious index, and the wrong one. Day values repeat across rooms, so a date range query returns the record once per matching (room, rate, day) — up to 80× for a 4-night search on a 20-room hotel. The SI docs confirm range queries on collection indexes require application-side dedup. Bad DX; not shown. |
+| Bed types via path extraction                        | Same failure mode — a hotel with ten king rooms writes `king` ten times. If needed later, use a denormalized distinct `bedTypes` rollup instead.                                                                                                                                                                   |
+| Amenities (list, string)                             | Would be safe — a hotel lists `pool` once, so equality hits one entry per record. Dropped to keep the index set tight.                                                                                                                                                                                             |
+| `propertyType`                                       | Six values across the dataset. Terrible selectivity; the index costs more than it saves. Filter expression. (`entriesPerBval` proves it.)                                                                                                                                                                          |
+| `reviewCount`, `stars`, `maxOccupancy`, `nonSmoking` | Cheap filter-expression predicates on an already-narrowed set.                                                                                                                                                                                                                                                     |
+| `landmarks.location`                                 | Search origin, never search target.                                                                                                                                                                                                                                                                                |
 
 The duplicate rule, stated cleanly: duplicates come from repeated values within the indexed
 collection. That single sentence explains every row above.
@@ -379,7 +422,7 @@ coarse-then-fine pattern used throughout this design.
 > multi-level example in that reference chains an explicit `.*` per level instead, which is what the
 > two AEL strings below now do. `$.rooms` also needed an explicit `:MAP` type annotation once run
 > for real — a bare CDT root can't otherwise be wildcarded (`unresolved bin type, use $.bin:LIST or
-> $.bin:MAP`); nested steps resolve fine once the root is typed.
+$.bin:MAP`); nested steps resolve fine once the root is typed.
 
 ```java
 session.query(hotels)
@@ -391,7 +434,7 @@ session.query(hotels)
 
 Per-room coverage is itself a count, which is the simplification the day-list model bought us:
 
-```
+```text
 $.rooms.room-101.rates.*.available.*[?(@ >= 20260916 and @ <= 20260919)].count() == 4
 ```
 
@@ -440,22 +483,23 @@ production share one surface, not just at the query step.
 Checked against `aerospike-client-java-sdk`, branch `stage` (commit `c1f3cc0`). These are
 load-bearing for the code above.
 
-| Finding | Evidence |
-|---|---|
-| AEL is required for index-based query planning, and planning is server-side | `IndexProbePlanner.plan()` calls `QueryWhereWire.requireAel(ael)` and ships the AEL to the server via `IndexProbeCommand`. This is why every query in the demo is AEL — it isn't stylistic. |
-| AEL requires server 8.1.3+ | `Cluster.supportsAel()` returns `versionGE813`. |
-| Path expressions work in AEL where-clauses | AEL parsing moved server-side (CLIENT-5163), and the canonical reference specifies wildcards, loop variables, and read terminals (§4.3, §7, §12, §22.5). |
-| But AEL fragments can't be spliced into the Java CDT path builder | `onEachChild(String ael)` and `modifyBy(String ael)` throw; the `Exp` overloads work. Narrow — only affects projection filters and modify bodies, not where-clauses. |
-| The SDK creates and lists indexes directly | `Session.createIndex` in three forms (bin, expression, set) returning `IndexTask`; `session.info().secondaryIndexes()` returns `List<Sindex>` with `IndexState` (`WO`/`RW`) and `entriesPerBval`. No CLI needed for demo setup. |
-| `createIndex` has no AEL overload | Every signature in `Session.java` takes a bin name or an `Expression`. This is why `hotel-minprice-idx` needs `Exp`. |
-| Compiling AEL to base64 does not help | `AelMaterializer.expressionFromString(...)` returns `Expression.fromServerCompiledFilter()`, which packs `[128, "<ael text>"]` — a deferred-parse envelope scoped to the FILTER_EXP wire field (43), not a compiled expression tree. Routing it through asadm doesn't change that: `Session.buildCreateIndexInfoCommand` emits the same `sindex-create:...;exp=<base64>` info command that `manage sindex` writes to. |
-| `Filter.geoWithinRadius` builds the AeroCircle internally | Confirmed in `query/Filter.java`. Also present: `geoWithinRadiusByIndex`, `equalByIndex`, `rangeByIndex`, `containsByIndex`. |
-| `StringExp` already ships the 8.1.3 surface | `lower`, `upper`, `replaceAll`, `trim`, `concat`, `regexCompare`, `contains`, `startsWith` — client-side wiring is ahead of the server release. Note the convention: bin/source is the last argument for expressions. |
-| Parameterized AEL is real | `.where(String ael, Object... params)` binds through `AelPlaceholderBinder`. The demo should use it rather than concatenating values into query text. |
+| Finding                                                                     | Evidence                                                                                                                                                                                                                                                                                                                                                                                                              |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AEL is required for index-based query planning, and planning is server-side | `IndexProbePlanner.plan()` calls `QueryWhereWire.requireAel(ael)` and ships the AEL to the server via `IndexProbeCommand`. This is why every query in the demo is AEL — it isn't stylistic.                                                                                                                                                                                                                           |
+| AEL requires server 8.1.3+                                                  | `Cluster.supportsAel()` returns `versionGE813`.                                                                                                                                                                                                                                                                                                                                                                       |
+| Path expressions work in AEL where-clauses                                  | AEL parsing moved server-side (CLIENT-5163), and the canonical reference specifies wildcards, loop variables, and read terminals (§4.3, §7, §12, §22.5).                                                                                                                                                                                                                                                              |
+| But AEL fragments can't be spliced into the Java CDT path builder           | `onEachChild(String ael)` and `modifyBy(String ael)` throw; the `Exp` overloads work. Narrow — only affects projection filters and modify bodies, not where-clauses.                                                                                                                                                                                                                                                  |
+| The SDK creates and lists indexes directly                                  | `Session.createIndex` in three forms (bin, expression, set) returning `IndexTask`; `session.info().secondaryIndexes()` returns `List<Sindex>` with `IndexState` (`WO`/`RW`) and `entriesPerBval`. No CLI needed for demo setup.                                                                                                                                                                                       |
+| `createIndex` has no AEL overload                                           | Every signature in `Session.java` takes a bin name or an `Expression`. This is why `hotel-minprice-idx` needs `Exp`.                                                                                                                                                                                                                                                                                                  |
+| Compiling AEL to base64 does not help                                       | `AelMaterializer.expressionFromString(...)` returns `Expression.fromServerCompiledFilter()`, which packs `[128, "<ael text>"]` — a deferred-parse envelope scoped to the FILTER_EXP wire field (43), not a compiled expression tree. Routing it through asadm doesn't change that: `Session.buildCreateIndexInfoCommand` emits the same `sindex-create:...;exp=<base64>` info command that `manage sindex` writes to. |
+| `Filter.geoWithinRadius` builds the AeroCircle internally                   | Confirmed in `query/Filter.java`. Also present: `geoWithinRadiusByIndex`, `equalByIndex`, `rangeByIndex`, `containsByIndex`.                                                                                                                                                                                                                                                                                          |
+| `StringExp` already ships the 8.1.3 surface                                 | `lower`, `upper`, `replaceAll`, `trim`, `concat`, `regexCompare`, `contains`, `startsWith` — client-side wiring is ahead of the server release. Note the convention: bin/source is the last argument for expressions.                                                                                                                                                                                                 |
+| Parameterized AEL is real                                                   | `.where(String ael, Object... params)` binds through `AelPlaceholderBinder`. The demo should use it rather than concatenating values into query text.                                                                                                                                                                                                                                                                 |
 
 ## Open items
 
-**Product / timing**
+### Product / timing
+
 - This demo's data model is loosely inspired by a real preview customer's use case, not named here
   or anywhere in this repo. Naming/quote clearance from product marketing is required before any
   asset built from this demo names that customer publicly — it currently doesn't, and shouldn't
@@ -467,7 +511,8 @@ load-bearing for the code above.
   AEL preview land earlier?
 - Presenter and target date.
 
-**Engineering questions to file**
+### Engineering questions to file
+
 - AEL index authoring. Request `createIndex(DataSet, String, IndexType, IndexCollectionType, String ael)`
   with server-side compilation at index-create time — the server already parses AEL on every query.
   Until then, one index in the demo drops to `Exp` for a reason no viewer will understand. Two-minute
@@ -479,7 +524,8 @@ load-bearing for the code above.
 - Confirm whether equality queries on collection indexes collapse duplicate (value, record) pairs, in
   case the amenity or bed-type index is revisited.
 
-**Build decisions**
+### Build decisions
+
 - Repo: fork/extend `path-expressions-java-preview`'s `booking/` folder, or a new repo scoped to this
   demo. — **Decided 2026-08-27: starting a new repo (this one), not forking, since no local checkout
   of the reference repos was available.**

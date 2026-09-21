@@ -12,18 +12,18 @@ import poolside from "../assets/hotel-photos/poolside.jpg";
 import rooftopPool from "../assets/hotel-photos/rooftop-pool.jpg";
 
 const HOTEL_PHOTOS = [
-  exterior,
-  rooftopPool,
-  facade,
-  lounge,
-  guestRoom,
-  courtyard,
-  glassBuilding,
-  bedroomSkyline,
-  loungeFireside,
-  buildingSunset,
-  poolside,
-  bedroomSuite,
+	exterior,
+	rooftopPool,
+	facade,
+	lounge,
+	guestRoom,
+	courtyard,
+	glassBuilding,
+	bedroomSkyline,
+	loungeFireside,
+	buildingSunset,
+	poolside,
+	bedroomSuite,
 ];
 
 /**
@@ -61,7 +61,9 @@ const HOTEL_PHOTOS = [
  * other repeat by that same fixed spacing.
  */
 export function hotelPhotoUrlForIndex(index: number): string {
-  return HOTEL_PHOTOS[((index % HOTEL_PHOTOS.length) + HOTEL_PHOTOS.length) % HOTEL_PHOTOS.length];
+	return HOTEL_PHOTOS[
+		((index % HOTEL_PHOTOS.length) + HOTEL_PHOTOS.length) % HOTEL_PHOTOS.length
+	];
 }
 
 /**
@@ -71,10 +73,10 @@ export function hotelPhotoUrlForIndex(index: number): string {
  * (the same hotel shows the same photo on repeat direct visits) rather than random.
  */
 export function hotelPhotoUrl(hotelId: string): string {
-  let hash = 0;
-  for (let i = 0; i < hotelId.length; i++) {
-    hash = (hash * 31 + hotelId.charCodeAt(i)) | 0;
-  }
-  const index = Math.abs(hash) % HOTEL_PHOTOS.length;
-  return HOTEL_PHOTOS[index];
+	let hash = 0;
+	for (let i = 0; i < hotelId.length; i++) {
+		hash = (hash * 31 + hotelId.charCodeAt(i)) | 0;
+	}
+	const index = Math.abs(hash) % HOTEL_PHOTOS.length;
+	return HOTEL_PHOTOS[index];
 }

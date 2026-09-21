@@ -22,15 +22,16 @@ mvn -q package
 java -jar target/datagen.jar --start-date=2026-09-16 --hotels=900 --seed=42 --out=../data
 ```
 
-| Flag | Default | Notes |
-|---|---|---|
-| `--start-date` | today | ISO date. Defaults to today so a run six months from now shows current dates, not sold-out history — see design.md's "Reproducibility" section. |
-| `--days` | 90 | Date window length. |
-| `--hotels` | 900 | Total hotel count, split 70% Austin / 15% Round Rock / 15% San Marcos. |
-| `--seed` | 42 | RNG seed — same seed + start date + hotel count reproduces the same dataset. |
-| `--out` | `./data` | Output directory. |
+| Flag           | Default  | Notes                                                                                                                                           |
+| -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--start-date` | today    | ISO date. Defaults to today so a run six months from now shows current dates, not sold-out history — see design.md's "Reproducibility" section. |
+| `--days`       | 90       | Date window length.                                                                                                                             |
+| `--hotels`     | 900      | Total hotel count, split 70% Austin / 15% Round Rock / 15% San Marcos.                                                                          |
+| `--seed`       | 42       | RNG seed — same seed + start date + hotel count reproduces the same dataset.                                                                    |
+| `--out`        | `./data` | Output directory.                                                                                                                               |
 
 Writes:
+
 - `hotels.ndjson` — one JSON object per line, matching the `hotels` set schema in design.md exactly.
 - `landmarks.json` — the fixed 8-landmark array (real coordinates, not generated).
 - `stats.json` — per-city/per-propertyType/per-locality counts and record-size distribution, so the

@@ -1,23 +1,23 @@
 .distance-filter {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  color: var(--color-text);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	font-size: 13.5px;
+	color: var(--color-text);
 }
 
 .distance-filter-label {
-  white-space: nowrap;
+	white-space: nowrap;
 }
 
 .distance-radius-input {
-  width: 56px;
-  text-align: center;
-  padding: 6px 8px;
+	width: 56px;
+	text-align: center;
+	padding: 6px 8px;
 }
 
 .distance-filter .select-input {
-  width: auto;
-  padding: 6px 10px;
+	width: auto;
+	padding: 6px 10px;
 }
