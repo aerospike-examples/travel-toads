@@ -1,0 +1,141 @@
+.presenter-panel-wrap {
+  position: fixed;
+  /* Just under the sticky 140px header, not centered down the page — this
+     is the first thing a presenter reaches for, so it should read as part
+     of the page chrome, not something buried mid-scroll. */
+  top: 160px;
+  right: 0;
+  width: 280px;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  z-index: 100;
+}
+
+.presenter-panel-wrap.open {
+  transform: translateX(0);
+}
+
+.presenter-panel-tab {
+  position: absolute;
+  top: 20px;
+  left: -34px;
+  width: 34px;
+  height: 56px;
+  border: 1px solid var(--color-border);
+  border-right: none;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  box-shadow: var(--shadow-card);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.presenter-panel-tab:hover {
+  color: var(--color-primary);
+}
+
+.presenter-panel {
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  border-right: none;
+  padding: 16px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.presenter-panel-header h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.presenter-panel-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.presenter-panel-section .mode-switch {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.presenter-panel-section .mode-switch-option {
+  flex: 1;
+}
+
+.presenter-panel-section .reset-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.mode-switch {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+}
+
+.mode-switch-option {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: all 0.15s ease;
+}
+
+.mode-switch-option.active {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 1px 2px rgba(20, 24, 38, 0.15);
+}
+
+.mode-switch-option:not(.active):hover {
+  color: var(--color-text);
+}
+
+.reset-btn {
+  border: 1px solid var(--color-border);
+}
+
+.presenter-panel-query {
+  width: 100%;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.presenter-panel-query .demo-panel-meta,
+.presenter-panel-query .demo-panel-code {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.presenter-query-notes {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.presenter-query-empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-faint);
+}
+
+@media (max-width: 560px) {
+  .presenter-panel-wrap {
+    width: 240px;
+  }
+}

@@ -1,0 +1,142 @@
+.demo-panel {
+  border: 1px solid #cfe3dd;
+  background: linear-gradient(180deg, #f4faf8, #eef7f4);
+  border-radius: var(--radius-md);
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.demo-panel-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  text-align: left;
+}
+
+.demo-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--color-primary-dark);
+}
+
+.demo-panel-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.demo-panel-toggle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.demo-panel-body {
+  padding: 4px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demo-panel-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.demo-panel-row-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4f7f74;
+  padding-top: 3px;
+}
+
+.demo-panel-row-value {
+  font-size: 13.5px;
+  color: var(--color-text);
+  min-width: 0;
+}
+
+.demo-panel-action {
+  font-weight: 600;
+}
+
+.demo-panel-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.demo-panel-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: white;
+  border: 1px solid #cfe3dd;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.demo-panel-pill-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.demo-panel-code {
+  margin: 0;
+  padding: 10px 12px;
+  background: #14251f;
+  color: #d6f5e9;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.demo-panel-inline-code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: white;
+  border: 1px solid #cfe3dd;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.demo-panel-notes {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  line-height: 1.55;
+}
+
+@media (max-width: 640px) {
+  .demo-panel-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

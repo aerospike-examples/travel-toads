@@ -1,0 +1,83 @@
+.search-page-inner {
+  padding-top: 24px;
+  padding-bottom: 60px;
+}
+
+.search-page-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  margin-top: 24px;
+  align-items: start;
+}
+
+/* No FilterSidebar rendered yet (no destination) — give results-area the full width instead of
+   just the 1fr remainder, so the hero image fills the space the sidebar would otherwise leave
+   blank next to it. */
+.search-page-body-no-filters {
+  grid-template-columns: 1fr;
+}
+
+.results-area {
+  min-width: 0;
+}
+
+.results-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.results-count {
+  font-size: 20px;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 18px;
+  margin-top: 12px;
+}
+
+.results-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--color-text-muted);
+}
+
+/* Fills the same space the results grid takes up once a search runs — a blank "search for a
+   destination" panel read as an empty/broken page before there's anything to show here, so this
+   fills it with a real banner instead. */
+.results-hero-wrap {
+  text-align: center;
+}
+
+.results-hero-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.results-empty-hint {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--color-text-faint);
+}
+
+.results-error {
+  padding: 20px;
+  background: var(--color-danger-bg);
+  border: 1px solid #f0c6c3;
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .search-page-body {
+    grid-template-columns: 1fr;
+  }
+}

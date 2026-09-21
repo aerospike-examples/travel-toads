@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Single entry point for the demo appliance. Run this from the repo root:
+#   git clone https://github.com/aerospike-examples/booking-demo
+#   cd booking-demo
+#   ./demo start
+# See README.md for what each command does and scripts/ for the
+# implementation of the meatier ones (start/reset/seed/health).
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$REPO_ROOT"
+
+usage() {
+  cat <<'EOF'
+Usage: ./demo <command>
+
+  start    Build and start the whole appliance (Aerospike, backend, frontend)
+  reset    Return the running demo to its seeded state (a few seconds)
+  seed     Regenerate the dataset from scratch and reload it
+  status   Show container and backend/index health
+  logs     Tail logs from every service (Ctrl-C to stop; "./demo logs backend" for one)
+  stop     Stop the appliance (demo data persists in the demo-data volume)
+EOF
+}
+
+check_compose() {
+  docker compose version >/dev/null 2>&1 || {
+    echo "docker compose (v2) isn't available — run 'docker compose version' directly to see why." >&2
+    echo "(a shell alias wrapping 'docker', or a missing compose plugin, both look like this)" >&2
+    exit 1
+  }
+}
+
+cmd="${1:-}"
+shift || true
+
+case "$cmd" in
+  start)  exec scripts/start ;;
+  reset)  exec scripts/reset ;;
+  seed)   exec scripts/seed ;;
+  status)
+    check_compose
+    docker compose ps
+    echo
+    scripts/health 5 || echo "(backend not yet healthy)"
+    ;;
+  logs) check_compose; exec docker compose logs -f "$@" ;;
+  stop)  check_compose; exec docker compose down ;;
+  ""|-h|--help) usage ;;
+  *)
+    echo "Unknown command: $cmd" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

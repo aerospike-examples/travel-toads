@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Polls the backend's GET /health until data is loaded and every secondary
+# index has reached RW (see docs/design.md: "IndexState is WO then RW ...
+# queries against it fail until it flips to RW" — this is the same check
+# backend's own startup does with waitTillComplete(), exposed here so the
+# host-side scripts don't need a JSON library to act on it).
+#
+# Usage: health [timeout-seconds]   (default 60)
+# Exits 0 and prints the last response body once status == "ok".
+# Exits 1 after the timeout.
+set -euo pipefail
+BACKEND_URL="${BACKEND_URL:-http://localhost:8081}"
+TIMEOUT="${1:-60}"
+
+elapsed=0
+while (( elapsed < TIMEOUT )); do
+  if body=$(curl -fsS "$BACKEND_URL/health" 2>/dev/null); then
+    if grep -q '"status"[[:space:]]*:[[:space:]]*"ok"' <<<"$body"; then
+      echo "$body"
+      exit 0
+    fi
+  fi
+  sleep 1
+  elapsed=$((elapsed + 1))
+done
+
+echo "Timed out after ${TIMEOUT}s waiting for the backend to become healthy." >&2
+echo "Check './demo logs backend' for details." >&2
+exit 1

@@ -1,0 +1,12 @@
+{
+  "id": "locality",
+  "covers": ["click-neighborhood"],
+  "userAction": "Browse the {neighborhoodName} neighborhood",
+  "aerospikeAction": "String index on locality → AEL filter → results",
+  "queryMechanism": "AEL + Secondary Index",
+  "index": "hotel-locality-idx",
+  "aelTemplate": "$.locality == '{locality}' and $.rating >= {minRating}",
+  "relevantCode": "session.query(hotels)\n    .where(ael, params)\n    .execute();",
+  "queryHint": "forIndex(\"hotel-locality-idx\")",
+  "notes": "Identical fluent chain and AEL shape to the geo scenario — the server's planner picks a different index because the predicate is different. That's the index-selection beat: same code shape, different index, shown side by side with the geo scenario."
+}

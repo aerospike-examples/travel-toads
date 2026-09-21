@@ -1,0 +1,12 @@
+{
+  "id": "path-expressions",
+  "covers": ["filter-rooms"],
+  "userAction": "Filter to {bed} rooms available {checkIn}–{checkOut}",
+  "aerospikeAction": "Nested rooms/rates traversal, resolved server-side — no client-side loop over the record",
+  "queryMechanism": "AEL Path Expression",
+  "index": "hotel-loc-idx (or hotel-locality-idx) — path expression is a filter layered on top, not itself indexed",
+  "aelTemplate": "$.rooms.*[?(@.bed == '{bed}')].count() > 0 and $.rooms..rates..available.[?(@ >= {checkIn} and @ <= {checkOut})].count() > 0",
+  "relevantCode": "session.query(hotels)\n    .where(ael, params)\n    .execute();",
+  "queryHint": null,
+  "notes": "Deliberately coarse: this counts matching (room, rate, day) entries across the whole record, so it can't express \"one room covers all four nights\" by itself — see docs/design.md's 'Deliberately not indexed' table for why a collection index on available days would be wrong (day values repeat across rooms/rates). Per-room coverage for the property-detail projection is the finer per-room count: $.rooms.{roomId}.rates..available.*[?(@ >= {checkIn} and @ <= {checkOut})].count() == {nights}."
+}

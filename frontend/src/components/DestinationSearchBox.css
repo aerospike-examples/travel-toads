@@ -1,0 +1,112 @@
+.destination-search {
+  position: relative;
+}
+
+.destination-input-wrap {
+  position: relative;
+}
+
+.destination-input-wrap .text-input {
+  padding-right: 32px;
+}
+
+.destination-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--color-text-faint);
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.destination-clear:hover {
+  color: var(--color-text);
+  background: var(--color-surface-muted);
+}
+
+.destination-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card-hover);
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.destination-section + .destination-section {
+  border-top: 1px solid var(--color-border);
+}
+
+.destination-section-title {
+  padding: 10px 12px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-faint);
+}
+
+.destination-section-inner {
+  padding: 8px;
+}
+
+.destination-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 6px 6px;
+}
+
+.destination-option {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.destination-option:hover {
+  background: var(--color-surface-muted);
+}
+
+.destination-option-icon {
+  flex: none;
+}
+
+/* The whole-city entry ("Austin — All neighborhoods") sits above the specific landmarks that
+   also match the same typed text — bolded and given a bottom rule so it reads as a distinct,
+   broader option rather than just another item in the same list. */
+.destination-option-city {
+  font-weight: 700;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.destination-option-hint {
+  display: block;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.destination-empty {
+  padding: 16px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: center;
+}

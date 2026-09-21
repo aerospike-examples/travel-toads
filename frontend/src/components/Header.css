@@ -1,0 +1,74 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 140px;
+  gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.brand-mark {
+  display: block;
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brand-name {
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: -0.02em;
+  /* Sampled from traveltoads.png's wordmark (the darker of its two logo greens). */
+  color: #0a6b2e;
+}
+
+.brand-tagline {
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 600;
+  /* The lighter of traveltoads.png's two logo greens, matching its own tagline styling. */
+  color: #5cb43b;
+}
+
+.header-banner-ad {
+  display: block;
+  flex: none;
+  height: 90px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 900px) {
+  .header-banner-ad {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .brand-text {
+    display: none;
+  }
+}

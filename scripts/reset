@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# ./demo reset — returns the running demo to its just-seeded state in a few
+# seconds, without regenerating data or restarting containers. Per
+# docs/design.md, a booking only ever moves days between a room's `available`
+# and `booked` lists on an existing record, so "reset" is a truncate + reload
+# from the dataset already on disk (deterministic — same bytes every time),
+# not a fine-grained per-booking undo. Backend implements this at
+# POST /admin/reset. If someone at a meetup asks to see the booking flow
+# again, this is the button — no one has to remember how to manually
+# reverse a booking.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BACKEND_URL="${BACKEND_URL:-http://localhost:8081}"
+
+ok()   { printf '\033[32m✓\033[0m %s\n' "$1"; }
+fail() { printf '\033[31m✗\033[0m %s\n' "$1" >&2; exit 1; }
+
+echo "Resetting demo..."
+curl -fsS -X POST "$BACKEND_URL/admin/reset" >/dev/null \
+  || fail "Reset request failed — is the demo running? Try './demo start' first."
+
+ok "Removed bookings"
+ok "Restored availability"
+ok "Restored demo data"
+ok "Rebuilt indexes"
+
+"$REPO_ROOT/scripts/health" 30 >/dev/null \
+  || fail "Indexes didn't reach RW in time — check './demo logs backend'."
+ok "Demo ready"

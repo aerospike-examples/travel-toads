@@ -1,0 +1,244 @@
+.detail-page-inner {
+  padding-top: 20px;
+  padding-bottom: 60px;
+  max-width: 880px;
+}
+
+.detail-back-link {
+  display: inline-block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
+.detail-back-link:hover {
+  color: var(--color-primary);
+}
+
+.detail-loading {
+  padding: 60px 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.detail-hero {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+}
+
+.detail-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detail-header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-header-top h1 {
+  font-size: 26px;
+}
+
+.detail-property-type {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-light);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.detail-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}
+
+.detail-stars {
+  color: var(--color-accent);
+  letter-spacing: 1px;
+}
+
+.detail-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 800;
+  font-size: 12.5px;
+}
+
+.detail-location::before {
+  content: "·";
+  margin-right: 12px;
+}
+
+.detail-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.amenity-badge {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.amenity-badge-sm {
+  font-size: 11.5px;
+  padding: 4px 9px;
+}
+
+.detail-dates {
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.conflict-banner {
+  margin: 16px 0;
+  padding: 12px 16px;
+  background: var(--color-danger-bg);
+  border: 1px solid #f0c6c3;
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+}
+
+.room-list {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.room-list-title {
+  font-size: 18px;
+}
+
+.room-card {
+  padding: 18px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.room-card-photo {
+  flex: 0 0 140px;
+  width: 140px;
+  height: 105px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.room-card-info {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.room-card-info h3 {
+  font-size: 16px;
+}
+
+.room-card-specs {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.room-amenities {
+  margin-top: 10px;
+}
+
+.room-card-rates {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-sm);
+}
+
+.rate-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rate-row-period {
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+.rate-row-price {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.rate-row-unavailable {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-faint);
+  white-space: nowrap;
+}
+
+.room-book-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--color-border);
+  margin-top: 4px;
+}
+
+.room-book-total {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.voyager-hint {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--color-border);
+  font-size: 12.5px;
+  color: var(--color-text-faint);
+  font-style: italic;
+}

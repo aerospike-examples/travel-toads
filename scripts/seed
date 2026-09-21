@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# ./demo seed — regenerates the dataset from scratch (same SEED, so
+# deterministic — see datagen/README.md) and reloads it into Aerospike.
+# Use this after changing DEMO_HOTELS/DEMO_SEED/DEMO_DAYS (see .env.example),
+# or to force a clean rebuild. For just undoing bookings without
+# regenerating, use './demo reset' instead — it's faster.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+BACKEND_URL="${BACKEND_URL:-http://localhost:8081}"
+
+ok()   { printf '\033[32m✓\033[0m %s\n' "$1"; }
+fail() { printf '\033[31m✗\033[0m %s\n' "$1" >&2; exit 1; }
+
+docker compose version >/dev/null 2>&1 || fail "docker compose (v2) isn't available — run 'docker compose version' directly to see why."
+
+echo "Reseeding demo..."
+docker compose run --rm datagen >/dev/null || fail "Dataset generation failed — see output above."
+ok "Generated dataset"
+
+curl -fsS -X POST "$BACKEND_URL/admin/seed" >/dev/null \
+  || fail "Reload request failed — is the demo running? Try './demo start' first."
+ok "Loaded into Aerospike"
+ok "Rebuilt indexes"
+
+"$REPO_ROOT/scripts/health" 60 >/dev/null \
+  || fail "Indexes didn't reach RW in time — check './demo logs backend'."
+ok "Demo ready"

@@ -1,0 +1,19 @@
+.locality-chips {
+  margin-top: 14px;
+}
+
+.locality-chips-label {
+  margin-bottom: 8px;
+}
+
+.locality-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.locality-chip-city {
+  color: inherit;
+  opacity: 0.65;
+  font-weight: 500;
+}

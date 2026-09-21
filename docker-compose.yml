@@ -1,0 +1,93 @@
+networks:
+  demo:
+    driver: bridge
+
+volumes:
+  demo-data:
+
+services:
+  aerospike:
+    image: aerospike/aerospike-server:8.1.2.4
+    networks: [demo]
+    ports:
+      # Only the client service port needs to reach the host — for Voyager,
+      # aql, or anything else run outside compose. See aerospike/aerospike.conf
+      # for why those host-side tools need "use services alternate" and
+      # backend does not.
+      - "3000:3000"
+    volumes:
+      # Mounted as the *template*, not the final conf: the official image's
+      # entrypoint always eval-templates /etc/aerospike/aerospike.template.conf
+      # -> /etc/aerospike/aerospike.conf on every start (baked into the image
+      # regardless of what's mounted at the target path), and needs to write
+      # that target itself — mounting our file directly at aerospike.conf
+      # made that write fail with "Read-only file system". Our conf has no
+      # ${...}/$(...) sequences, so the eval-template step is a no-op copy.
+      - ./aerospike/aerospike.conf:/etc/aerospike/aerospike.template.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "asinfo -v status 2>/dev/null | grep -q ok"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  # One-shot: (re)generates the deterministic demo dataset into demo-data on
+  # every `./demo start`. Cheap and idempotent (same SEED/start-date/hotel
+  # count -> byte-identical output), so it always runs; `backend` decides
+  # separately whether that data actually needs (re)loading into Aerospike.
+  datagen:
+    build: ./datagen
+    networks: [demo]
+    volumes:
+      - demo-data:/data
+    # No --start-date: the generator already defaults to "today" (see
+    # datagen/README.md), which is what design.md's reproducibility note
+    # wants for a demo run months from now. To pin a fixed window instead
+    # (e.g. for recording video), add "--start-date=YYYY-MM-DD" to this list.
+    command:
+      - --days=${DEMO_DAYS:-90}
+      - --hotels=${DEMO_HOTELS:-900}
+      - --seed=${DEMO_SEED:-42}
+      - --out=/data
+
+  backend:
+    build: ./backend
+    networks: [demo]
+    depends_on:
+      aerospike:
+        condition: service_healthy
+      datagen:
+        condition: service_completed_successfully
+    environment:
+      AEROSPIKE_HOST: aerospike
+      AEROSPIKE_PORT: "3000"
+      DATA_DIR: /data
+      SERVER_PORT: "8081"
+      SCENARIOS_DIR: /app/scenarios
+    volumes:
+      - demo-data:/data
+      # backend/README.md "Deviations": the backend's Docker build context is ./backend (per the
+      # `build: ./backend` line above), so its Dockerfile can't COPY ../scenarios at image-build
+      # time. scenarios/*.json is the canonical, single-source demo copy (see docs/design.md
+      # "Demo mode" and the API contract's "demo" response block) and the brief for this service
+      # was explicit that it must be reused, not duplicated into the backend image - so it's
+      # bind-mounted read-only here instead of copied. Read-only, tiny, and always in sync with
+      # the checked-out repo.
+      - ./scenarios:/app/scenarios:ro
+    ports:
+      # Published for direct API/curl debugging; the frontend calls the
+      # backend over the compose network, not through this port.
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/health >/dev/null 2>&1 || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  frontend:
+    build: ./frontend
+    networks: [demo]
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"

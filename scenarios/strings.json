@@ -1,0 +1,12 @@
+{
+  "id": "strings",
+  "covers": ["search-name"],
+  "userAction": "Search for \"{needle}\"",
+  "aerospikeAction": "8.1.3 Unicode-safe string API, evaluated in AEL",
+  "queryMechanism": "AEL String Function",
+  "index": null,
+  "aelTemplate": "$.name.lowercase().indexOf(needle: '{needle}') >= 0",
+  "relevantCode": "session.query(hotels)\n    .where(ael, params)\n    .execute();",
+  "queryHint": null,
+  "notes": "No index — this is a full scan with a string predicate, shown deliberately unindexed alongside the indexed scenarios. Worth seeding a few non-ASCII property names for this one: the String Ops PRD guarantees Unicode canonical equivalence on find/contains/replace, so precomposed and decomposed forms of the same name both match — a concrete, demoable claim for a global travel brand, not just another '==' filter."
+}

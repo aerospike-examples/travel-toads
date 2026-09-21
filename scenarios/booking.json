@@ -1,0 +1,12 @@
+{
+  "id": "booking",
+  "covers": ["book"],
+  "userAction": "Book {roomId} for {checkIn}–{checkOut}",
+  "aerospikeAction": "Atomic operate() per rate segment the stay touches (often just one, but a multi-night stay spanning a weekday/weekend boundary touches two): remove the requested nights from available, append to booked — one record, no transaction needed",
+  "queryMechanism": "CDT operate() — not a query",
+  "index": null,
+  "aelTemplate": null,
+  "relevantCode": "// A rate period is a contiguous weekday-only or weekend-only band, so a stay's\n// nights often span more than one (e.g. a Sat-Mon stay needs a weekend night\n// from one segment and a weekday night from the next). Group the requested\n// nights by whichever segment's `available` list currently has each one, then\n// touch every segment the stay needs:\nfor (var segment : nightsByRateSegment.entrySet()) {\n    session.operate(hotels, key)\n        .removeByValue(\"rooms.\" + roomId + \".rates[\" + segment.rateIndex + \"].available\", segment.nights)\n        .append(\"rooms.\" + roomId + \".rates[\" + segment.rateIndex + \"].booked\", reservation)\n        .execute();\n}",
+  "queryHint": null,
+  "notes": "The trap worth showing live: remove-by-value on an already-booked day is a silent no-op, so a naive second booking would 'succeed' without actually getting the room. The demo backend asserts the CDT remove's returned count, summed across every rate segment the stay touched, equals the total number of nights requested — and fails the booking (409) otherwise, putting back whatever it did remove from any segment. Same check-and-set shape as the retail cart tutorial. This is also the scenario './demo reset' undoes: restoring 'available' and clearing 'booked' returns the system to a known state without the SE having to remember how to manually reverse a booking."
+}
