@@ -7,7 +7,10 @@ volumes:
 
 services:
   aerospike:
-    image: aerospike/aerospike-server:8.1.2.4
+    # 8.2.0.0 is the first public GA release with AEL and Path Expressions built in - verified
+    # directly (see README.md's Status section): POST /search genuinely executes via AEL + a
+    # secondary index with zero code changes, no preview/internal build needed anymore.
+    image: aerospike/aerospike-server:8.2.0.0
     networks: [demo]
     ports:
       # Only the client service port needs to reach the host — for Voyager,

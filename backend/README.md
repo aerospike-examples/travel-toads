@@ -9,6 +9,14 @@ on Maven Central). See `../docs/design.md` for the data model, index design, and
 implements; this file covers how to build/run it and where the real implementation had to deviate
 from that design doc.
 
+**Current state (as of Aerospike 8.2 GA):** `../docker-compose.yml`'s tracked default is
+`aerospike/aerospike-server:8.2.0.0`, which supports AEL natively — a plain clone gets real,
+indexed AEL execution with no extra setup. Several sections below (notably "AEL and server version
+8.1.2 vs 8.1.3") are a dated record of debugging this against the 8.1.2.4 image that _used_ to be
+the tracked default, from back when AEL wasn't publicly released yet — kept as-is because the
+mechanism they describe (the `AEL_UNSUPPORTED` fallback) still exists and still matters if you ever
+point `docker-compose.yml` at an older image, but none of it describes today's default behavior.
+
 ## Build & run
 
 ### Standalone (no Docker)

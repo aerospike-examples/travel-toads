@@ -1,8 +1,8 @@
 # Aerospike DX demo — booking site (Java SDK, AEL, Path Expressions)
 
 A booking-site demo showing developer-experience gains from three Aerospike investments together:
-the new Java SDK, the Aerospike Expression Language (AEL, targeting server 8.1.3), and Path
-Expressions (GA in 8.1.2).
+the new Java SDK, the Aerospike Expression Language (AEL, GA in server 8.2), and Path Expressions
+(GA in 8.1.2).
 
 Full design — data model, index design, screen-to-query mapping, and the demo narrative — lives in
 [`docs/design.md`](docs/design.md).
@@ -21,23 +21,24 @@ Full design — data model, index design, screen-to-query mapping, and the demo 
       images, real data load (900 hotels), all four indexes reaching RW, a real booking + a real
       409 on double-booking with state left correct, and `./demo reset` restoring it in ~5.5s.
       Three integration bugs were found and fixed in the process — see "Integration fixes" below.
-- [x] **Real search/suggest results without 8.1.3.** AEL itself still needs 8.1.3+ and still
-      correctly 503s if forced, but `/search` and `/suggest` now return real, verified-correct
-      results today via a classic Exp-tree fallback (no AEL) — see `backend/README.md` "Getting
-      real results without 8.1.3" for exactly which predicates run server-side, which one doesn't
-      (and why, a genuine finding not a guess), and every count cross-checked against
-      `data/stats.json`.
-- [x] **Real server-side AEL, verified against an actual preview build (local-only, see
-      `local/README.md`).** `POST /search` returns real HTTP 200 results via genuine server-side AEL
-      execution across three different query shapes; found and fixed two real, version-independent
-      bugs in the process (an invalid `..` operator design.md's own examples used, and a missing
-      `:MAP` type annotation) — both fixes are in the tracked backend and `docs/design.md` now,
-      regardless of what server image `docker-compose.yml` points at. Also found the SDK's `stage`
-      branch had quietly bumped its AEL version requirement from 8.1.3 to 8.2.0 — `backend/Dockerfile`
-      now pins a commit instead of tracking `stage`. See `backend/README.md`'s "AEL verified against
-      a real 8.1.3+ server" for the full writeup. (The preview server build itself — `local/*.rpm` —
-      stays gitignored and never touches this repo's history; `local/README.md`, the setup
-      instructions, is an ordinary tracked file with nothing confidential in it.)
+- [x] **Real server-side AEL, verified against the public 8.2.0.0 GA release** — `docker-compose.yml`'s
+      tracked default. `POST /search` returns real HTTP 200 results via genuine server-side AEL
+      execution across every query shape, with no preview build and no manual setup; found and fixed
+      two real, version-independent bugs along the way (an invalid `..` operator design.md's own
+      examples used, and a missing `:MAP` type annotation) — both fixes are in the tracked backend
+      and `docs/design.md` now. Also found the SDK's `stage` branch had quietly bumped its AEL
+      version requirement from 8.1.3 to 8.2.0 mid-project — `backend/Dockerfile` now pins a commit
+      instead of tracking `stage`. See `backend/README.md`'s "AEL verified against a real 8.1.3+
+      server" for the full writeup, and `local/README.md` if you need to point at a build newer or
+      different than the tracked default.
+- [x] **A classic Exp-tree fallback still runs underneath, as a safety net, not the primary path.**
+      Every predicate has a non-AEL equivalent, verified correct and cross-checked against
+      `data/stats.json` — this is what kept `/search` and `/suggest` returning real, indexed-or-full-scan
+      results throughout development even when the server underneath briefly didn't support AEL (a
+      moving `stage` SDK version gate, or an older image). One confirmed, genuinely partial
+      server-side gap persists even on 8.2.0.0 GA: `GET /suggest`'s AEL `lowercase()` isn't
+      implemented server-side yet (`trim()` works), so name search falls through to this tier
+      automatically — see `backend/README.md` for the full writeup.
 - [x] **Price and guests/rooms filters closed the same gap.** Both originally had a classic-`Exp`
       form only — invisible pre-8.1.3, but a real, silently-dropped-filter bug once AEL went live,
       since a query can only carry one filter condition (AEL or classic, never both). Both turned
@@ -47,14 +48,13 @@ Full design — data model, index design, screen-to-query mapping, and the demo 
       the displayed query). See `backend/README.md`'s "Closing the price / guests-and-rooms gap".
 - [ ] Video / blog / short-form / SE pre-canned demos
 
-**Known, expected limitation (tracked repo / public default):** the demo's queries are written in
-AEL (Aerospike Expression Language) per design.md, which requires server 8.1.3+ — not yet publicly
-released, so the public `aerospike/aerospike-server:8.1.2.4` image this appliance ships with by
-default doesn't support it. Rather than just 503ing until then, `/search` and `/suggest` run a
-classic Exp-tree equivalent today (see below) — real results, just without secondary-index
-acceleration (a full scan) until `docker-compose.yml`'s tracked default is pointed at a public
-8.1.3+ image, at which point the AEL/indexed path is used automatically with no code change (this is
-now proven, not just claimed — see the status line above). Booking (plain CDT `operate()`) and index
+**AEL is live by default, not a limitation anymore.** The demo's queries are written in AEL
+(Aerospike Expression Language) per design.md, which needs server 8.1.3+; `docker-compose.yml`'s
+tracked default is now the public `aerospike/aerospike-server:8.2.0.0` GA image, so a plain clone
+gets real, indexed AEL execution out of the box — no preview build, no manual version check, no
+code change required. The classic Exp-tree fallback described above still runs underneath as a
+safety net (and is what keeps name search working around the one confirmed server-side gap), but
+it's no longer the primary path a fresh clone takes. Booking (plain CDT `operate()`) and index
 creation never needed AEL and have worked since the start.
 
 ## Running it
@@ -96,9 +96,9 @@ frontend/              — React booking UI — see frontend/README.md
   bumped its AEL version requirement from 8.1.3 to 8.2.0 (see `backend/README.md`'s "AEL verified
   against a real 8.1.3+ server"). Built from source in `backend/Dockerfile`; there's no Maven Central
   artifact yet.
-- **Server version: public 8.1.2.4 for now**, even though AEL needs 8.1.3+ (not yet publicly
-  released). Built and tested against 8.1.2.4 today per the known limitation above; swap the
-  `aerospike` image tag in `docker-compose.yml` once an AEL-capable build is reachable.
+- **Server version: public 8.2.0.0**, the first GA release with AEL and Path Expressions built in
+  (AEL itself needs 8.1.3+ at minimum). Built and tested directly against it — see the Status
+  section above.
 - **Frontend stack: React + Vite + TypeScript**, plain CSS, no component-library dependency.
 
 ## Integration fixes

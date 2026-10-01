@@ -1,8 +1,10 @@
-# local/ — real AEL against a preview server build
+# local/ — pointing the demo at a different server build
 
-This demo's queries are AEL, which needs a newer Aerospike server than the public image this repo
-ships with by default (see the root README's "Known, expected limitation"). If you have access to
-a preview build ahead of that public release, this is how to point the demo at it.
+`docker-compose.yml`'s default (`aerospike/aerospike-server:8.2.0.0`) is the first public GA release
+with AEL and Path Expressions built in, so **this mechanism is no longer needed to make AEL work** —
+a plain clone already gets real AEL out of the box. It's still useful if you need to test against a
+newer or internal build ahead of whatever's in `docker-compose.yml` (a preview point release, a fix
+for a specific bug, etc.) without touching that tracked default.
 
 ## Setup
 
@@ -54,5 +56,6 @@ above — are documented once, in `../backend/README.md`'s "AEL verified against
 server", rather than duplicated here. Re-verified against a later server build too, with identical
 results across the complete `/search` filter matrix (locality, bed, price, guests/rooms, geo, and
 all combined) — the fixes hold generally, not just against whichever specific build they were first
-found on. `GET /suggest` still 503s cleanly on every build tested: `lowercase`/`uppercase`/`length`
-aren't implemented server-side yet (`trim` works) — see backend/README.md for how that's handled.
+found on. `GET /suggest`'s `lowercase()`/`uppercase()`/`length()` still aren't implemented
+server-side as of the 8.2.0.0 GA release (`trim()` works) — confirmed still falls through cleanly to
+a working classic-Exp tier instead of failing outright; see backend/README.md for how that's handled.

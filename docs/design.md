@@ -504,20 +504,22 @@ load-bearing for the code above.
   or anywhere in this repo. Naming/quote clearance from product marketing is required before any
   asset built from this demo names that customer publicly — it currently doesn't, and shouldn't
   until cleared.
-- String Ops PRD gates on CLIENT-4354 (Java) and CLIENT-4420 (Python) shipping before 8.1.3 GA; the
-  design spec is still "code complete, under review." Locality slug normalization and name search
-  can't be built until the Java string module lands.
-- Reconcile "AEL reaching preview" (press-release plan) with server 8.1.3 — same milestone, or does
-  AEL preview land earlier?
+- **Resolved by direct testing against the 8.2.0.0 GA release:** the client-side `StringExp` surface
+  shipped ahead of the server — `trim()` works server-side, but `lowercase()`/`uppercase()`/`length()`
+  still don't (confirmed via `backend/README.md`'s probe, re-confirmed against GA). Locality slug
+  normalization and case-insensitive name search fall through to the classic-Exp tier for now, not
+  blocked outright — see "Fixing hotel-name search's fall-through" in `backend/README.md`.
+- AEL itself is no longer a preview-only capability — server 8.2 (which includes 8.1.3+) is
+  publicly GA, and `docker-compose.yml`'s tracked default now points at it directly.
 - Presenter and target date.
 
 ### Engineering questions to file
 
 - AEL index authoring. Request `createIndex(DataSet, String, IndexType, IndexCollectionType, String ael)`
   with server-side compilation at index-create time — the server already parses AEL on every query.
-  Until then, one index in the demo drops to `Exp` for a reason no viewer will understand. Two-minute
-  test when 8.1.3 is available: does `sindex-create` accept opcode 128 and parse the embedded AEL? If
-  yes, the gap closes with no server change.
+  Until then, one index in the demo drops to `Exp` for a reason no viewer will understand. Now that
+  8.2 GA is reachable, this is actually testable: does `sindex-create` accept opcode 128 and parse
+  the embedded AEL? Not yet run — still genuinely open, not just waiting on server availability.
 - Confirm the `.where(String, Object...)` placeholder token so query text is never string-concatenated.
 - Verify a GEO-typed `location` bin through the `RecordMapper` — a MAP bin fails silently against the
   geo index.

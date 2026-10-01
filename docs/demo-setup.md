@@ -7,16 +7,17 @@ who's been building it, this is your whole runbook — nothing else to read firs
 
 - **Docker Desktop**, installed and running. (Colima works too — see `README.md`'s note on
   alternatives — but Docker Desktop is the tested path.)
-- **The demo package**: a zip file containing the full app _and_ a private Aerospike server build
-  already placed at `local/server.rpm`. If you don't have this zip, ask whoever gave you this guide
-  — the server build is unreleased software and isn't something you can get any other way.
+- **This repo, cloned.** Aerospike 8.2 is GA, so the tracked `docker-compose.yml` default already
+  points at a public server image with AEL built in — no private build, no zip, nothing to request
+  from anyone. (If you specifically need to test against a different build, see `local/README.md`
+  — most presenters will never need this.)
 - About 5 minutes before your slot.
 
 ## One-time setup
 
 ```bash
-unzip aerospike-dx-demo.zip
-cd aerospike-dx-demo
+git clone https://github.com/aerospike-examples/travel-toads
+cd travel-toads
 ./demo start
 ```
 
@@ -31,18 +32,19 @@ If it fails with something about `docker compose` not being found or unrecognize
 `README.md`'s Docker Compose troubleshooting section — this happens specifically on Homebrew-only
 Docker installs (no Docker Desktop) and has a two-command fix.
 
-## Verify it's really running live AEL, not the fallback
+## Quick confidence check: confirm AEL is really live
 
-This matters — the whole point of the demo is that the queries are real. Confirm it before you're
-in front of anyone:
+Should say `true` out of the box now that Aerospike 8.2 GA is the tracked default — worth a
+10-second check before you're in front of anyone, not because it's expected to fail:
 
 ```bash
 docker compose logs backend | grep "Connected to Aerospike"
 ```
 
-You want to see `AEL supported=true`. If it says `false`, the demo will still run (it falls back to
-an equivalent non-AEL query path automatically) but you won't get the "watch the real AEL query"
-beat — see `backend/README.md` if this happens and you weren't expecting it.
+You want to see `AEL supported=true`. If it says `false` — e.g. you've pointed `local/` at an older
+build — the demo still runs (it falls back to an equivalent non-AEL query path automatically) but
+you won't get the "watch the real AEL query" beat; see `backend/README.md` if this happens and you
+weren't expecting it.
 
 Then open **<http://localhost:8080>**, run any search, open the presenter panel (the small `<` tab on
 the right edge of the results page), and confirm you see real AEL text and an index name like
