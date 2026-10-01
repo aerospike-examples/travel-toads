@@ -86,8 +86,8 @@ to an equivalent that still runs server-side. Worth knowing, not worth dwelling 
 2. Point at the room list — each room shows its own rates for the dates you searched.
 
 **Say:** "This is Path Expressions doing the retrieval — reaching directly into the nested rooms and
-rates inside one record, rather than pulling the whole document back and filtering it in application
-code."
+rates inside one record. The decision about which rate periods actually apply to your dates happens
+on the server, not in application code."
 
 ---
 

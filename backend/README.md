@@ -152,17 +152,35 @@ which sidesteps the stat's lag entirely. Confirmed by testing `/admin/reset` rep
 real container and polling `/health` immediately after — it now reports the correct count right
 away every time.
 
-**6. `GET /hotels/{id}`'s room/rate projection is done in Java after a plain key read, not as a
-server-side AEL path-expression projection.** Every other AEL-dependent endpoint in this backend
-has a documented `503 AEL_UNSUPPORTED` fallback — but the API contract does _not_ list a 503 case
-for this endpoint, only 404. Since AEL genuinely does not work at all against the 8.1.2.4 server
-this demo ships with today, the only way to make this endpoint actually function (not just exist)
-is to do the "only matching rooms/rate segments cross the wire" filtering in the application layer
-instead of in an AEL where-clause/projection: read the full record by key (no AEL, no index, always
-works), then filter each room's `rates` list down to periods overlapping `[checkIn, checkOut]` in
-`HotelRecordUtil.projectRooms()`. The output shape is identical either way. A true server-side
-projection via `Exp`-tree CDT reads (which wouldn't need 8.1.3) is possible and would be a better
-long-term answer, but wasn't worth the added complexity given the time budget here.
+**6. `GET /hotels/{id}`'s room/rate filtering now genuinely runs server-side (resolved; previously
+done in Java).** The original version read the full record by key and filtered each room's `rates`
+list down to periods overlapping `[checkIn, checkOut]` in Java — justified at the time because AEL
+didn't work at all against the 8.1.2.4 server this demo shipped with by default, and this endpoint
+(unlike every other AEL-dependent one) has no documented 503 fallback, so it had to work
+unconditionally. That justification no longer holds (8.2 GA is the tracked default now), and more
+importantly, the demo's own narration for this endpoint always claimed "reaching directly into the
+nested rooms and rates inside one record" — which was false as long as the filtering ran in Java.
+Fixed with a real `CdtOperation.selectByPath` (the fluent `onEachChild`/`collectTree` form, built
+in `HotelDetailService.projectRatesByPath`) — a classic typed `Exp`/CTX path expression, not AEL
+text, and not conditioned on `supportsAel()` since Path Expressions (GA 8.1.2) never depended on
+AEL (GA 8.1.3+/8.2) in the first place. Confirmed against a live 8.2.0.0 server: a narrowed date
+range correctly excluded the non-overlapping rate segment, not just passed everything through.
+One real limitation found along the way: a `SelectFlags.MATCHING_TREE` selection that descends
+into one nested field (here, `rates`) can't simultaneously preserve a room's _other_ sibling fields
+(`bed`, `sqm`, etc.) in the same result — CTX paths navigate downward, they don't project "these
+columns, transform that nested array" the way a SQL `SELECT` would. So room-level metadata still
+comes from a second, plain read of the whole record (`HotelDetailService.get()`'s existing
+`session.query(key).execute()`, unchanged); only the actual overlap decision — the thing the demo's
+narration was claiming and the thing that previously ran in Java — now runs on the server. Two
+round trips, not one, but a real and bounded improvement, not a complete rewrite.
+
+Separately, and _not_ fixed here: `scenarios/path-expressions.json`'s `demo` block (reused for this
+endpoint per deviation #7 below) still describes AEL text and a multi-record `.where()` call in its
+`aelTemplate`/`relevantCode` fields — neither ever matched this endpoint's actual single-key,
+classic-`Exp`-API mechanism, before or after this fix. Left alone since the same scenario file is
+also the _accurate_ description of `/search`'s bed+date filter (which genuinely does use AEL text);
+giving this endpoint its own non-shared scenario copy would be a reasonable follow-up, not a
+correctness bug in the code itself.
 
 **7. `scenarios/path-expressions.json` is reused for both the `/search` bed+date filter and the
 `GET /hotels/{id}` demo block.** There is no dedicated scenario file for "property detail" — the

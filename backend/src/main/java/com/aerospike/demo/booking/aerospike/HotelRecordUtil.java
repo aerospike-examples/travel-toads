@@ -35,8 +35,16 @@ public final class HotelRecordUtil {
         return out;
     }
 
-    /** Full property-detail shape, with each room's "rates" filtered to [checkIn, checkOut]. */
-    public static Map<String, Object> toHotelDetail(Record rec, long checkIn, long checkOut) {
+    /**
+     * Full property-detail shape, with each room's "rates" filtered to [checkIn, checkOut].
+     * {@code filteredRatesByRoom} is the server-side path-expression projection's result
+     * (roomId -&gt; {@code {rates: [...]}}, already filtered to the overlapping segments) - see
+     * {@link com.aerospike.demo.booking.service.HotelDetailService#projectRatesByPath} for how
+     * it's built. Room-level fields (bed, sqm, etc.) still come from the plain {@code rec} read,
+     * since a CDT path selection can't keep sibling fields alongside a transformed nested one.
+     */
+    public static Map<String, Object> toHotelDetail(
+            Record rec, Map<?, ?> filteredRatesByRoom, long checkIn, long checkOut) {
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("hotelId", rec.getString("hotelId"));
         out.put("name", rec.getString("name"));
@@ -49,7 +57,7 @@ public final class HotelRecordUtil {
         out.put("rating", rec.getInt("rating"));
         out.put("reviewCount", rec.getInt("reviewCount"));
         out.put("amenities", rec.getList("amenities"));
-        out.put("rooms", projectRooms(rec.getMap("rooms"), checkIn, checkOut));
+        out.put("rooms", projectRooms(rec.getMap("rooms"), filteredRatesByRoom, checkIn, checkOut));
         return out;
     }
 
@@ -132,12 +140,15 @@ public final class HotelRecordUtil {
      * The property-detail path-expression projection (docs/design.md step 4 / "Property detail"
      * row): for every room, only the rate segments whose [from,to] period overlaps
      * [checkIn, checkOut] cross into the response, each still carrying its full available/booked
-     * lists for that period. Done here in application code rather than as a true server-side AEL
-     * projection - see backend/README.md "Deviations" for why (today's server can't run AEL at
-     * all, and this endpoint has no documented 503 case, so it has to work unconditionally).
+     * lists for that period. The overlap decision itself is made server-side now - see
+     * {@link com.aerospike.demo.booking.service.HotelDetailService#projectRatesByPath}, a real
+     * {@code CdtOperation.selectByPath} path expression confirmed against a live server (not
+     * assumed) - this method just merges that result with each room's other fields, which a CTX
+     * path selection can't carry alongside a transformed nested one in a single call.
      */
     @SuppressWarnings("unchecked")
-    public static Map<String, Object> projectRooms(Map<?, ?> rooms, long checkIn, long checkOut) {
+    public static Map<String, Object> projectRooms(
+            Map<?, ?> rooms, Map<?, ?> filteredRatesByRoom, long checkIn, long checkOut) {
         Map<String, Object> out = new LinkedHashMap<>();
         if (rooms == null) {
             return out;
@@ -154,16 +165,12 @@ public final class HotelRecordUtil {
             roomOut.put("nonSmoking", room.get("nonSmoking"));
             roomOut.put("amenities", room.get("amenities"));
 
-            List<Map<String, Object>> matchingRates = new java.util.ArrayList<>();
-            List<?> rates = (List<?>) room.get("rates");
-            if (rates != null) {
-                for (Object rateObj : rates) {
-                    Map<String, Object> rate = (Map<String, Object>) rateObj;
-                    long from = ((Number) rate.get("from")).longValue();
-                    long to = ((Number) rate.get("to")).longValue();
-                    if (from <= checkOut && to >= checkIn) {
-                        matchingRates.add(rate);
-                    }
+            List<Map<String, Object>> matchingRates = List.of();
+            Object filteredRoom = filteredRatesByRoom == null ? null : filteredRatesByRoom.get(roomId);
+            if (filteredRoom instanceof Map) {
+                Object ratesObj = ((Map<?, ?>) filteredRoom).get("rates");
+                if (ratesObj instanceof List) {
+                    matchingRates = (List<Map<String, Object>>) ratesObj;
                 }
             }
             roomOut.put("rates", matchingRates);
